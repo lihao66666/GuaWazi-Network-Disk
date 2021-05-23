@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="TGS" />
+        <module name="RSA" />
+        <module name="AS" />
+        <module name="DES" />
+        <module name="TEST" />
+        <module name="Upload_Server" />
+        <module name="Download_Server" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="AS" target="11" />
+      <module name="Client" target="11" />
+      <module name="DES" target="11" />
+      <module name="Download_Server" target="11" />
+      <module name="RSA" target="11" />
+      <module name="TEST" target="11" />
+      <module name="TGS" target="11" />
+      <module name="Upload_Server" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
