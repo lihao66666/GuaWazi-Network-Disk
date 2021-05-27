@@ -1,3 +1,0 @@
-#忽略记录log的log文件以及html文件
-*.html
-*.log
