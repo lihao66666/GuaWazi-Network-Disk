@@ -58,6 +58,21 @@ public class RSA {
 
     @Test
     void test() throws IOException {
-        Generate();
+        //生成密钥
+        GenerateKey generateKey=new GenerateKey();
+        generateKey.Generate();
+
+        //加密
+        String str="123123";
+        String E=Encrypt(str,generateKey.getE(),generateKey.getN());
+
+        //解密
+        String D=Dencrypt(E,generateKey.getD(),generateKey.getN());
+
+        System.out.println("E = " + E);
+        System.out.println("D = " + D);
+
+        //生成本地密钥
+        //Generate();
     }
 }
