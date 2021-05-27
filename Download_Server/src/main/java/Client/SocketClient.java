@@ -14,7 +14,7 @@ public class SocketClient {
         BufferedReader br=null;
         try {
             // 和服务器创建连接
-            socket = new Socket("localhost",8888);
+            socket = new Socket("localhost",7777);
             System.out.println("客户端已启动\n");
             // 要发送给服务器的信息
             int a=2;
@@ -37,11 +37,30 @@ public class SocketClient {
                 //while((info = br.readLine())!=null){
                     System.out.println("服务端输出："+info);
                 //}
-                String str1=server.creat_msg11();
-                pw.write(str1+"\n");
+//                String str1=server.creat_msg11();
+//                pw.write(str1+"\n");
+//                pw.flush();
+//                String info1 =br.readLine();
+//                System.out.println("服务端输出："+info1);
+
+                String str2=server.creat_msg12();
+                pw.write(str2+"\n");
                 pw.flush();
-                String info1 =br.readLine();
-                System.out.println("服务端输出："+info1);
+
+                String info2 =br.readLine();
+                System.out.println(str2);
+                System.out.println("服务端输出："+info2);
+
+//                String str3=server.creat_msg13();
+//                pw.write(str3+"\n");
+//                pw.flush();
+//                String info3 =br.readLine();
+//                System.out.println("服务端输出："+info3);
+//                String str4=server.creat_msg14();
+//                pw.write(str4+"\n");
+//                pw.flush();
+//                String info4 =br.readLine();
+//                System.out.println("服务端输出："+info4);
             }
         } catch (Exception e) {
             System.out.println("服务端已经断开连接\n");

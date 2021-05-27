@@ -58,23 +58,56 @@ public class ServerThread extends Thread{
                             String msg=server.return_CA();//回传认证
                             pw.write(msg+"\n");//发送
                             pw.flush();
-                            logger.error("应用服务器认证成功");
+                            logger.info("应用服务器认证成功");
                         }
                         break;
                     }
-                    case 11:
+                    case 12:
                     {
-                        if(server.Download_Handler(info)==null){
-                            String msg=server.status_message(11);//
+                        String msg=null;
+                        if((msg=server.Download_Handler(info))==null){
+                            msg=server.status_message(14);//
                             pw.write(msg+"\n");//发送
                             pw.flush();
-                            logger.error("文件上传失败");
+                            logger.error("文件下载失败");
                         }
                         else{
-                            String msg=server.status_message(10);//
                             pw.write(msg+"\n");//发送
                             pw.flush();
-                            logger.error("文件上传成功");
+                            logger.error("文件下载成功");
+                        }
+                        break;
+                    }
+                    case 13:
+                    {
+                        String msg=null;
+                        if((msg=server.Browse_Handler(info))==null){
+                            msg=server.status_message(15);//
+                            pw.write(msg+"\n");//发送
+                            pw.flush();
+                            logger.error("文件浏览失败");
+                        }
+                        else{
+                            pw.write(msg+"\n");//发送
+                            pw.flush();
+                            logger.error("文件浏览成功");
+                        }
+                        break;
+                    }
+                    case 14:
+                    {
+                        String msg=null;
+                        if(!server.Delete_Handler(info)){
+                            msg=server.status_message(13);//
+                            pw.write(msg+"\n");//发送
+                            pw.flush();
+                            logger.error("文件删除失败");
+                        }
+                        else{
+                            msg=server.status_message(12);//
+                            pw.write(msg+"\n");//发送
+                            pw.flush();
+                            logger.error("文件删除成功");
                         }
                         break;
                     }
