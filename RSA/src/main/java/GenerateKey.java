@@ -1,5 +1,3 @@
-import org.junit.jupiter.api.Test;
-
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -33,30 +31,6 @@ public class GenerateKey {
     /// 存储RSA计算时的d
     /// </summary>
     private BigInteger d;
-
-    public BigInteger getP() {
-        return p;
-    }
-
-    public BigInteger getQ() {
-        return q;
-    }
-
-    public BigInteger getN() {
-        return n;
-    }
-
-    public BigInteger getFai() {
-        return fai;
-    }
-
-    public BigInteger getE() {
-        return e;
-    }
-
-    public BigInteger getD() {
-        return d;
-    }
 
     BigInteger RandomGenerate_512() {
         BigInteger r;
@@ -92,17 +66,4 @@ public class GenerateKey {
             }
         }
     }
-
-    @Test
-    public void test() {
-        Generate();
-        System.out.println(BigInteger.TEN.remainder(BigInteger.valueOf((long)7)).equals(BigInteger.valueOf((long)3)));
-        System.out.println("p = " + p);
-        System.out.println("q = " + q);
-        System.out.println("n = " + n);
-        System.out.println("fai = " + fai);
-        System.out.println("e = " + e);
-        System.out.println("d = " + d);
-    }
-
 }
