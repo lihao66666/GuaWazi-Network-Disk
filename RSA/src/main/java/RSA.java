@@ -1,4 +1,6 @@
-import org.junit.jupiter.api.Test;
+
+
+import org.junit.Test;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -57,7 +59,7 @@ public class RSA {
     }
 
     @Test
-    void test() throws IOException {
+    public void test() throws IOException {
         //生成密钥
         GenerateKey generateKey=new GenerateKey();
         generateKey.Generate();

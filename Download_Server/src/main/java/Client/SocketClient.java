@@ -1,6 +1,7 @@
 package Client;
 
-import Server.UploadServer;
+import Server.DownloadServer;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -20,7 +21,7 @@ public class SocketClient {
             while(--a!=0){
                 os = socket.getOutputStream();//字节流(二进制)
                 pw = new PrintWriter(os);//字符编码
-                UploadServer server=new UploadServer(socket.getInetAddress().getHostAddress());
+                DownloadServer server=new DownloadServer(socket.getInetAddress().getHostAddress());
                 String str=server.creat_msg9();
                 pw.write(str+"\n");
                 pw.flush();
@@ -55,6 +56,7 @@ public class SocketClient {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
     }
 }
