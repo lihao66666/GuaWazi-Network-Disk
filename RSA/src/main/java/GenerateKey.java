@@ -32,6 +32,30 @@ public class GenerateKey {
     /// </summary>
     private BigInteger d;
 
+    public BigInteger getP() {
+        return p;
+    }
+
+    public BigInteger getQ() {
+        return q;
+    }
+
+    public BigInteger getN() {
+        return n;
+    }
+
+    public BigInteger getFai() {
+        return fai;
+    }
+
+    public BigInteger getE() {
+        return e;
+    }
+
+    public BigInteger getD() {
+        return d;
+    }
+
     BigInteger RandomGenerate_512() {
         BigInteger r;
         Random random = new Random();
