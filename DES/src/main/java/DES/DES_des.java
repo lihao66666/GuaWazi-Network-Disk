@@ -1,16 +1,15 @@
 package DES;
 
+import org.apache.log4j.Logger;
+
 import java.util.Base64;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
-
-
-public class DES_ENCRYPT {
+public class DES_des {
     /**
      * log声明
      */
-    private static final Logger logger = Logger.getLogger(DES_ENCRYPT.class);
+    private static final Logger logger = Logger.getLogger(DES_des.class);
 
     /**
      * 密钥（string类型）长度 定义成8
@@ -19,58 +18,36 @@ public class DES_ENCRYPT {
     private static final int Key_Length = 8;
 
     /**
-     * 密钥（私有，通过get_Key获取）
-     */
-    private static String Key;
-
-    /**
      * 构造函数
-     * 生成Key
      */
-    public DES_ENCRYPT() {
-        Key_Generator(); //首先自动生成Key
+    public DES_des() {
     }
 
     /**
      * 生成8位随机长度的string作为密钥
+     *
+     * @return 生成的Key
      */
-    private void Key_Generator() {
+    public String Key_Generator() {
         logger.info("开始生成8位密钥");
         StringBuilder str = new StringBuilder();
         Random random = new Random();
         for (int i = 0; i < Key_Length; i++) {
             str.append((char) (random.nextInt() % 128));
         }
-        Key = str.toString();
-        logger.info("密钥已经生成！密钥为\t" + Key);
-    }
-
-    /**
-     * 获取私有成员函数Key
-     *
-     * @return 私有成员函数Key
-     */
-    public String get_Key() {
-        return Key;
-    }
-
-
-    /**
-     * 设置Key
-     *
-     * @param key 需要设置的Key
-     */
-    public void set_Key(String key) {
-        Key = key;
+        String key = str.toString();
+        logger.info("密钥已经生成！密钥为\t" + key);
+        return key;
     }
 
     /**
      * 对文本进行加密
      *
      * @param text 需要加密的文本
+     * @param Key  密钥
      * @return 加密后的文本使用base64编码
      */
-    public String Encrypt_Text(String text) {
+    public String Encrypt_Text(String text, String Key) {
         logger.info("开始加密");
         logger.debug("传入明文内容：\t\t" + text);
         DES Encrypt = new DES(Key);
@@ -81,4 +58,23 @@ public class DES_ENCRYPT {
         return encrypted_Text;
     }
 
+    /**
+     * 对密文进行解密
+     *
+     * @param c   （使用base64编码的）密文
+     * @param Key 密钥
+     * @return 明文
+     */
+    public String Decrypt_Text(String c, String Key) {
+        logger.info("开始解密");
+        logger.debug("传入密文内容：\t\t" + c);
+        logger.debug("解密密钥\t\t密钥为\t" + Key);
+        byte[] c_Byte = Base64.getDecoder().decode(c);
+        DES Decrypt = new DES(Key);
+
+        byte[] origion_Text = Decrypt.deal(c_Byte, 0);
+        logger.info("解密结束");
+        logger.debug("传出明文内容：\t\t" + new String(origion_Text));
+        return new String(origion_Text);
+    }
 }
