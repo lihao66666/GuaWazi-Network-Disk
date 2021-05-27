@@ -1,0 +1,4 @@
+2021-05-27 00:26:40  Log.Test_Log.main(Test_Log.java:8)  [INFO ]  "192.168.1.1 建立连接"
+2021-05-27 00:26:40  Log.Test_Log.main(Test_Log.java:9)  [INFO ]  "客户端2 1号请求报文"
+2021-05-27 00:26:40  Log.Test_Log.main(Test_Log.java:10)  [ERROR]  "身份验证失败,断开连接"
+2021-05-27 00:26:40  Log.Test_Log.main(Test_Log.java:11)  [ERROR]  "身份验证失败,断开连接"
