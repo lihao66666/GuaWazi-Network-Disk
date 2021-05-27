@@ -1,8 +1,8 @@
 package 通信框架.Client;
 
+import 通信框架.Server.UploadServer;
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class SocketClient {
     public static void main(String[] args) throws InterruptedException {
@@ -16,12 +16,12 @@ public class SocketClient {
             socket = new Socket("localhost",8888);
             System.out.println("客户端已启动\n");
             // 要发送给服务器的信息
-            while(true){
+            int a=2;
+            while(--a!=0){
                 os = socket.getOutputStream();//字节流(二进制)
                 pw = new PrintWriter(os);//字符编码
-                Scanner input=new Scanner(System.in);
-                System.out.println("客户端输入:");
-                String str=input.next();
+                UploadServer server=new UploadServer(socket.getInetAddress().getHostAddress());
+                String str=server.creat_msg9();
                 pw.write(str+"\n");
                 pw.flush();
                 //socket.shutdownOutput();//使用完关闭
@@ -36,6 +36,11 @@ public class SocketClient {
                 //while((info = br.readLine())!=null){
                     System.out.println("服务端输出："+info);
                 //}
+                String str1=server.creat_msg11();
+                pw.write(str1+"\n");
+                pw.flush();
+                String info1 =br.readLine();
+                System.out.println("服务端输出："+info1);
             }
         } catch (Exception e) {
             System.out.println("服务端已经断开连接\n");

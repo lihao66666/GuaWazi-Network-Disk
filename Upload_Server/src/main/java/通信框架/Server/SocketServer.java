@@ -2,17 +2,19 @@ package 通信框架.Server;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.LinkOption;
 
 public class SocketServer {
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SocketServer.class);
     private int port;
     public SocketServer(int port){
+        logger.debug("通信服务已启动");
         this.port=port;
     }
     public void ServerListener() {
         try {
             // 创建服务端socket
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("服务端已启动\n");
             //循环监听等待客户端的连接
             while(true){
                 // 监听客户端 // 创建客户端socket
@@ -20,7 +22,7 @@ public class SocketServer {
                 ServerThread thread = new ServerThread(socket);
                 thread.start();
                 InetAddress address=socket.getInetAddress();
-                System.out.println("当前客户端的IP："+address.getHostAddress());
+                logger.info("通信请求,客户端IP"+address.getHostAddress());
             }
         } catch (Exception e) {
             // TODO: handle exception
