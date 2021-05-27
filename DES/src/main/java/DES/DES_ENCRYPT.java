@@ -54,6 +54,16 @@ public class DES_ENCRYPT {
         return Key;
     }
 
+
+    /**
+     * 设置Key
+     *
+     * @param key 需要设置的Key
+     */
+    public void set_Key(String key) {
+        Key = key;
+    }
+
     /**
      * 对文本进行加密
      *
@@ -70,7 +80,5 @@ public class DES_ENCRYPT {
         logger.debug("传出密文内容：\t\t" + encrypted_Text);
         return encrypted_Text;
     }
-
-
 
 }
