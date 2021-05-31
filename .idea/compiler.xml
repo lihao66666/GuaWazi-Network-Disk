@@ -13,11 +13,13 @@
         <module name="TEST" />
         <module name="Upload_Server" />
         <module name="Download_Server" />
+        <module name="Client-Swing" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="AS" target="11" />
       <module name="Client" target="11" />
+      <module name="Client-Swing" target="11" />
       <module name="DES" target="11" />
       <module name="Download_Server" target="11" />
       <module name="RSA" target="11" />

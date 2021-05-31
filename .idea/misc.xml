@@ -7,16 +7,11 @@
         <option value="$PROJECT_DIR$/TGS/pom.xml" />
         <option value="$PROJECT_DIR$/Upload_Server/pom.xml" />
         <option value="$PROJECT_DIR$/Download_Server/pom.xml" />
-        <option value="$PROJECT_DIR$/Client/pom.xml" />
         <option value="$PROJECT_DIR$/DES/pom.xml" />
         <option value="$PROJECT_DIR$/RSA/pom.xml" />
         <option value="$PROJECT_DIR$/TEST/pom.xml" />
+        <option value="$PROJECT_DIR$/Client-Swing/pom.xml" />
       </list>
-    </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/Client/RSA/pom.xml" />
-      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK">
