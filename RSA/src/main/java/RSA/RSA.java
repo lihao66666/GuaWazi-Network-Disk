@@ -173,7 +173,7 @@ public class RSA {
     @Test
     public void test() throws IOException {
        /* //生成密钥
-        RSA.RSA.GenerateKey generateKey=new RSA.RSA.GenerateKey();
+        RSA.RSA.RSA.GenerateKey generateKey=new RSA.RSA.RSA.GenerateKey();
         generateKey.Generate();
 
         //加密
