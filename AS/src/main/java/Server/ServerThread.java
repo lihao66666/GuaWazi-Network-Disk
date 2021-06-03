@@ -25,11 +25,13 @@ public class ServerThread extends Thread {
         BufferedReader br = null;
         OutputStream os = null;
         PrintWriter pw = null;
+        logger.debug("通信线程开始运行");
         try {
-            server.ConnectToDB();
+            server.GetSK_KDC();
             //消息接受和发送
             while (true) {
                 //接受请求
+                logger.debug("接受请求");
                 is = socket.getInputStream();
                 isr = new InputStreamReader(is);
                 br = new BufferedReader(isr);
@@ -52,18 +54,18 @@ public class ServerThread extends Thread {
                     case 1://证书
                     {
                         if (server.VerifyLicense(info) == false) {//证书校验失败
+                            logger.error("证书交换验证失败");
                             String msg = server.StatusMessage(16);//证书交换验证失败
                             pw.write(msg + "\n");//发送
                             pw.flush();
-                            logger.error("证书交换验证失败");
                             socket.shutdownOutput();
                             // Thread.sleep(5000);
                             throw new Exception();
                         } else {
+                            logger.info("证书认证成功");
                             String msg = server.GenerateASLicenseMessage();//回传证书
                             pw.write(msg + "\n");//发送
                             pw.flush();
-                            logger.info("证书认证成功");
                         }
                         break;
                     }
@@ -73,20 +75,6 @@ public class ServerThread extends Thread {
                         String msg = server.StatusMessage(RegisterStatus);//
                         pw.write(msg + "\n");//发送
                         pw.flush();
-                        switch (RegisterStatus) {
-                            case 0: {
-                                logger.debug("注册成功");
-                                break;
-                            }
-                            case 1: {
-                                logger.error("注册失败");
-                                break;
-                            }
-                            case 17: {
-                                logger.error("注册账号时账号已存在");
-                                break;
-                            }
-                        }
                         break;
                     }
                     case 4://登录
@@ -95,24 +83,11 @@ public class ServerThread extends Thread {
                         String msg = server.StatusMessage(LoginStatus);
                         pw.write(msg + "\n");//发送
                         pw.flush();
-                        switch (LoginStatus) {
-                            case 2: {
-                                logger.debug("账户不存在");
-                                break;
-                            }
-                            case 3: {
-                                logger.error("密码错误");
-                                break;
-                            }
-                            case 4: {
-                                logger.debug("登录成功");
-                                break;
-                            }
-                        }
+                        break;
                     }
                     case 5:{//请求TGS票据
                         if(server.VerifyRequestOfTicket(info)){
-                            String msg=server.GenerateASLicenseMessage();
+                            String msg=server.GenerateTicketMessage(info);
                             pw.write(msg + "\n");//发送
                             pw.flush();
                         }

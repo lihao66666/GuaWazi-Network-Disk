@@ -58,7 +58,7 @@ public class GenerateKey {
         return d;
     }
 
-    BigInteger RandomGenerate_512() {
+    BigInteger RandomGenerate_1024() {
         BigInteger r;
         Random random = new Random();
         r = BigInteger.probablePrime(512, random);
@@ -76,8 +76,8 @@ public class GenerateKey {
 
     public void Generate() {
         while (true) {
-            p = RandomGenerate_512();
-            q = RandomGenerate_512();
+            p = RandomGenerate_1024();
+            q = RandomGenerate_1024();
             if (p.equals(q)) continue;
             else {
                 n = p.multiply(q);
