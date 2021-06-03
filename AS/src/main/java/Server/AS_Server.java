@@ -228,8 +228,8 @@ public class AS_Server {
             }
         }
 
-            logger.error("请求的TGS不在数据库中");
-            return false;
+        logger.error("请求的TGS不在数据库中");
+        return false;
 
     }
 

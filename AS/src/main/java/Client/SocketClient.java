@@ -87,8 +87,8 @@ public class SocketClient {
                 pw = new PrintWriter(os);//字符编码
 
                 String str=message_5();
-            System.out.println("str = " + str);
-            pw.write(str+"\n");
+                System.out.println("str = " + str);
+                pw.write(str+"\n");
                 pw.flush();
                 //socket.shutdownOutput();//使用完关闭
                 // 从服务器接收的信息
@@ -101,7 +101,7 @@ public class SocketClient {
                 //    socket.sendUrgentData(0xFF);//抛出异常
                 //}
                 //while((info = br.readLine())!=null){
-                    System.out.println("服务端输出："+info);
+                System.out.println("服务端输出："+info);
                 //}
                 /*String str1=server.creat_msg11();
                 pw.write(str1+"\n");
@@ -128,7 +128,7 @@ public class SocketClient {
 
     @Test
     public void test() throws IOException {
-       //RSA.RSA.Generate("client1");
+        //RSA.RSA.Generate("client1");
         RSA.RSA.GenerateCA("AS","client1");
     }
 }

@@ -28,7 +28,7 @@ public class DES_des {
      *
      * @return 生成的Key
      */
-    public String Key_Generator() {
+    public static String Key_Generator() {
         logger.info("开始生成8位密钥");
         StringBuilder str = new StringBuilder();
         Random random = new Random();
@@ -47,7 +47,7 @@ public class DES_des {
      * @param Key  密钥
      * @return 加密后的文本使用base64编码
      */
-    public String Encrypt_Text(String text, String Key) {
+    public static String Encrypt_Text(String text, String Key) {
         logger.info("开始加密");
         logger.debug("传入明文内容：\t\t" + text);
         DES Encrypt = new DES(Key);
@@ -65,7 +65,7 @@ public class DES_des {
      * @param Key 密钥
      * @return 明文
      */
-    public String Decrypt_Text(String c, String Key) {
+    public static String Decrypt_Text(String c, String Key) {
         logger.info("开始解密");
         logger.debug("传入密文内容：\t\t" + c);
         logger.debug("解密密钥\t\t密钥为\t" + Key);
