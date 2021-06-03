@@ -18,7 +18,7 @@ public class AS_Server {
     private static final String URL = "jdbc:mysql://47.117.190.99:3306/gwz_db";//连接到的数据库
     private static final String NAME = "GWZ_DB";//用户名
     private static final String PASSWORD = "3hfYLRaCmyfKMWEH";//密码
-    private static Connection conn=null;
+    public static Connection conn=null;
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AS_Server.class);
     static final String Server_ID = "AS1";//服务器的ID(固定)
@@ -240,17 +240,20 @@ public class AS_Server {
         String IDtgs=request.getString("IDtgs");
         String Kc_tgs=Integer.toString((IDc+IDtgs).hashCode());
         TS2=new Date();
+        logger.debug("TS2===="+TS2);
         logger.debug("生成TS2");
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(TS2);
-        calendar.add(calendar.SECOND,1); //把时间向后推迟1秒
+        calendar.add(calendar.HOUR,1); //把时间向后推迟1秒
         Date LifeTime2=calendar.getTime(); //这个时间就是日期往后推一天的结果
+        logger.debug("LifeTime==="+LifeTime2);
         JSONObject Ticket_tgs=new JSONObject();
         Ticket_tgs.put("Kc_tgs",Kc_tgs);
         Ticket_tgs.put("IDc",IDc);
         Ticket_tgs.put("ADc",Client_AD);
         Ticket_tgs.put("IDtgs",IDtgs);
         Ticket_tgs.put("TS2",TS2);
+        //1622732441561  1622732548079  1622732671050
         Ticket_tgs.put("Lifetime2",LifeTime2);
         logger.debug("123123");
         Statement stmt = conn.createStatement();
@@ -263,6 +266,7 @@ public class AS_Server {
 
             }
         }
+        logger.debug("tck====="+Ticket_tgs.toJSONString());
         String Ticket= DES.DES_des.Encrypt_Text(Ticket_tgs.toJSONString(),Ktgs) ;
         logger.debug("加密后的TGS—ticket====="+Ticket);
         JSONObject AS_C=new JSONObject();

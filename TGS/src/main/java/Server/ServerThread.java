@@ -11,12 +11,12 @@ import java.util.Scanner;
 public class ServerThread extends Thread {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ServerThread.class);
     private static Socket socket = null;
-    private AS_Server server;//应用服务
+    private TGS_Server server;//应用服务
 
     public ServerThread(Socket socket) {
         logger.info("通信线程已启动");
         this.socket = socket;
-        server = new AS_Server(socket.getInetAddress().getHostAddress());
+        server = new TGS_Server(socket.getInetAddress().getHostAddress());
     }
 
     @Override
@@ -28,7 +28,6 @@ public class ServerThread extends Thread {
         PrintWriter pw = null;
         logger.debug("通信线程开始运行");
         try {
-            server.GetSK_KDC();
             //消息接受和发送
             while (true) {
                 //接受请求
@@ -52,50 +51,22 @@ public class ServerThread extends Thread {
                 System.out.println(info);
                 int id = message.getInteger("id");
                 switch (id) {
-                    case 1://证书
+                    case 7://请求Ticketv
                     {
-                        if (server.VerifyLicense(info) == false) {//证书校验失败
-                            logger.error("证书交换验证失败");
-                            String msg = server.StatusMessage(16);//证书交换验证失败
+                        int status=server.VerifyTicketTGS(info);
+                        if (status == -1) {//证书验证成功
+                            logger.error("证书验证成功");
+                            String msg = server.GenerateTicketVMessage(info);
                             pw.write(msg + "\n");//发送
                             pw.flush();
-                            socket.shutdownOutput();
+                            //socket.shutdownOutput();
                             // Thread.sleep(5000);
-                            throw new Exception();
                         } else {
-                            logger.info("证书认证成功");
-                            String msg = server.GenerateASLicenseMessage();//回传证书
+                            logger.info("票据验证失败");
+                            String msg = server.StatusMessage(status);
                             pw.write(msg + "\n");//发送
                             pw.flush();
-                        }
-                        break;
-                    }
-                    case 3://注册
-                    {
-                        int RegisterStatus = server.ClientRegister(info);
-                        String msg = server.StatusMessage(RegisterStatus);//
-                        pw.write(msg + "\n");//发送
-                        pw.flush();
-                        break;
-                    }
-                    case 4://登录
-                    {
-                        int LoginStatus= server.ClientLogin(info);
-                        String msg = server.StatusMessage(LoginStatus);
-                        pw.write(msg + "\n");//发送
-                        pw.flush();
-                        break;
-                    }
-                    case 5:{//请求TGS票据
-                        if(server.VerifyRequestOfTicket(info)){
-                            String msg=server.GenerateTicketMessage(info);
-                            pw.write(msg + "\n");//发送
-                            pw.flush();
-                        }
-                        else{
-                            String msg=server.StatusMessage(18);
-                            pw.write(msg + "\n");//发送
-                            pw.flush();
+                            throw new Exception();
                         }
                         break;
                     }
