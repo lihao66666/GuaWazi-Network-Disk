@@ -13,7 +13,7 @@
         <module name="TEST" />
         <module name="Upload_Server" />
         <module name="Download_Server" />
-        <module name="Client" />
+        <module name="Client-Swing" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

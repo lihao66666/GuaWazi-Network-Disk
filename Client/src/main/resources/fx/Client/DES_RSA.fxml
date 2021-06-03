@@ -7,19 +7,15 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="mainPane" maxHeight="600.0" maxWidth="335.0" minHeight="600.0" minWidth="335.0" prefHeight="600.0" prefWidth="335.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fx.Client.DES_RSA_Controller">
+<AnchorPane maxHeight="600.0" maxWidth="335.0" minHeight="600.0" minWidth="335.0" prefHeight="600.0" prefWidth="335.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fx.Client.Controller.DES_RSA_Controller">
    <children>
       <Separator prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0" />
+      <ScrollPane fx:id="scroll_pane" layoutX="5.0" layoutY="52.0" prefHeight="537.0" prefWidth="325.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="60.0" />
       <Label text="DES&amp; RSA 加解密展示" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="16.0">
          <font>
-            <Font name="Microsoft YaHei" size="16.0" />
+            <Font name="Microsoft YaHei" size="17.0" />
          </font>
       </Label>
-      <Button fx:id="testButton" layoutX="247.0" layoutY="16.0" mnemonicParsing="false" onAction="#testPressed" text="test" />
-      <ScrollPane fx:id="scrow_pane" layoutX="5.0" layoutY="52.0" prefHeight="537.0" prefWidth="325.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="52.0">
-        <content>
-          <AnchorPane fx:id="show_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="300.0" />
-        </content>
-      </ScrollPane>
+      <Button layoutX="228.0" layoutY="15.0" mnemonicParsing="false" onAction="#add_des" text="des" />
    </children>
 </AnchorPane>

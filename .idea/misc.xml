@@ -10,7 +10,7 @@
         <option value="$PROJECT_DIR$/DES/pom.xml" />
         <option value="$PROJECT_DIR$/RSA/pom.xml" />
         <option value="$PROJECT_DIR$/TEST/pom.xml" />
-        <option value="$PROJECT_DIR$/Client/pom.xml" />
+        <option value="$PROJECT_DIR$/Client-Swing/pom.xml" />
       </list>
     </option>
   </component>

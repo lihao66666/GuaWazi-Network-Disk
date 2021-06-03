@@ -1,5 +1,6 @@
 package Server;
 
+import DES.DES_des;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
@@ -10,6 +11,7 @@ import java.util.*;
 
 public class DownloadServer {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(DownloadServer.class);
+    private static DES_des DES=new DES_des();
     static final String Server_ID="1";//服务器的ID(固定)
     static final String Kv="key";//保存上传 Server 与 TGS 的密钥
     private String Client_ID;//客户端ID
@@ -28,15 +30,16 @@ public class DownloadServer {
 
         String Ticket_v=msg.getString("Ticket_v");//获取Ticket
         /*DES Kv解密票据*///
-        //解密过程................
+        Ticket_v=DES.Decrypt_Text(Ticket_v,this.Kv);
         JSONObject ticket_v=JSON.parseObject(Ticket_v);
         this.Kc_v=ticket_v.getString("Kc_v");
         //System.out.println("\n票据"+ticket_v);
         String Authenticator_c= msg.getString("Authenticator_c");
         /*DES Kc_v解密票据*///
         //解密过程................
+        Authenticator_c=DES.Decrypt_Text(Authenticator_c,this.Kc_v);
         JSONObject authenticator_c=JSON.parseObject(Authenticator_c);
-       // System.out.println("\n认证"+authenticator_c);
+        //System.out.println("\n认证"+authenticator_c);
 
         //验证
         if(!ticket_v.getString("IDv").equals(Server_ID))
@@ -47,9 +50,7 @@ public class DownloadServer {
 
         if(!ticket_v.getString("ADc").equals(authenticator_c.getString("ADc"))||!ticket_v.getString("ADc").equals(this.Client_AD))
             return false;
-
-        //System.out.println("\n报文:"+message);
-
+        // System.out.println("\n报文:"+msg);
         if(ticket_v.getDate("Lifetime4").before(new Date()))
             return false;
 
@@ -72,8 +73,8 @@ public class DownloadServer {
         calendar.setTime(TS5);
         calendar.add(calendar.SECOND,1); //把时间向后推迟1秒
         Date TS6=calendar.getTime(); //这个时间就是日期往后推一天的结果
-        String ACK=null;//TS6进行DES Kc_v加密
-        message.put("ACK",TS6);
+        String ACK=DES.Encrypt_Text(TS6.toString(),this.Kc_v);//TS6进行DES Kc_v加密
+        message.put("ACK",ACK);
         return message.toJSONString();
     }
     public String status_message(int type){
@@ -91,21 +92,31 @@ public class DownloadServer {
             logger.error("非法错误");
             return null;
         }
+
         String Data=msg.getString("data");
         //Data进行DES解密 Kc_v...........
+        Data=DES.Decrypt_Text(Data,this.Kc_v);
         JSONObject data=JSON.parseObject(Data);
+
         String filename=data.getString("filename");
         File file=new File("./云盘/"+this.Client_ID+File.separator+filename);
-        BufferedInputStream in=new BufferedInputStream(new FileInputStream(file));
-        byte[] bytes=in.readAllBytes();//按字节全部读出
-        String str=new String(bytes);//转换为string
+        String str=null;
+        try{
+            BufferedInputStream in=new BufferedInputStream(new FileInputStream(file));
+            byte[] bytes=in.readAllBytes();//按字节全部读出
+            str=new String(bytes);//转换为string
+        }catch(Exception e){
+            e.printStackTrace();
+            logger.error("系统异常");
+        }
+        //String str=new String(bytes);//转换为string
         JSONObject filebuff=JSON.parseObject(str);
         JSONObject newData=new JSONObject();
         newData.put("filename",filename);
         newData.put("Sig",filebuff.getString("Sig"));
         newData.put("Em",filebuff.getString("Em"));
         //newData进行DES加密 Kc_v...........
-        String newdata=newData.toJSONString();
+        String newdata=DES.Encrypt_Text(newData.toJSONString(),this.Kc_v);
         JSONObject newmsg=new JSONObject();
         newmsg.put("id",12);
         newmsg.put("IDc",this.Client_ID);
@@ -136,7 +147,7 @@ public class DownloadServer {
         newData.put("num",filename.size());
         newData.put("filename",filename);
         //newData进行DES加密 Kc_v...........
-        String newdata=newData.toJSONString();
+        String newdata=DES.Encrypt_Text(newData.toJSONString(),this.Kc_v);
         newmsg.put("data",newdata);
         return newmsg.toJSONString();
     }
@@ -150,6 +161,7 @@ public class DownloadServer {
         }
         String Data=msg.getString("data");
         //Data进行DES解密 Kc_v...........
+        Data=DES.Decrypt_Text(Data,this.Kc_v);
         JSONObject data=JSON.parseObject(Data);
         //获取文件列表
         List<String> filename=data.getJSONArray("filename").toJavaList(String.class);
@@ -165,10 +177,10 @@ public class DownloadServer {
     }
 
     public String creat_msg9() throws Exception{//用于测试
-       // 生成认证报文
+        // 生成认证报文
         logger.debug("9号报文生成");
-         JSONObject ticket_v=new JSONObject();
-        ticket_v.put("Kc_v","asdfghj");
+        JSONObject ticket_v=new JSONObject();
+        ticket_v.put("Kc_v","keyc_v");
         ticket_v.put("IDc",99);
         ticket_v.put("ADc","127.0.0.1");
         ticket_v.put("IDv",1);
@@ -182,8 +194,8 @@ public class DownloadServer {
         calendar.add(calendar.HOUR,1); //把时间向后推迟1小时
         Lifetime4=calendar.getTime(); //这个时间就是日期往后推一天的结果
         ticket_v.put("Lifetime4",Lifetime4);
-        //System.out.println(Lifetime4);
         //DES Kv加密
+        String Ticket_v=DES.Encrypt_Text(ticket_v.toJSONString(),this.Kv);
 
         JSONObject authenticator_c=new JSONObject();
         authenticator_c.put("IDc",99);
@@ -191,11 +203,12 @@ public class DownloadServer {
         Date TS5=new Date();
         authenticator_c.put("TS5",TS5);
         //DES Kc_v加密
+        String Authenticator_c=DES.Encrypt_Text(authenticator_c.toJSONString(),"keyc_v");
 
         JSONObject message=new JSONObject();
         message.put("id",9);
-        message.put("Ticket_v",ticket_v.toJSONString());
-        message.put("Authenticator_c",authenticator_c.toJSONString());
+        message.put("Ticket_v",Ticket_v);
+        message.put("Authenticator_c",Authenticator_c);
 
         String MSG=message.toJSONString();
         return MSG;
@@ -211,7 +224,7 @@ public class DownloadServer {
         Data.put("Sig","你是大手笔");
         Data.put("Em","我爱你中国");
         //Data DES Kc_v加密............
-        String data=Data.toJSONString();
+        String data=DES.Encrypt_Text(Data.toJSONString(),"keyc_v");
         message.put("data",data);
         //System.out.println(message);
         return message.toJSONString();
@@ -222,10 +235,8 @@ public class DownloadServer {
         message.put("IDc",99);
         JSONObject Data=new JSONObject();
         Data.put("filename","lihao.txt");
-       // Data.put("Sig","你是大手笔");
-      //  Data.put("Em","我爱你中国");
         //Data DES Kc_v加密............
-        String data=Data.toJSONString();
+        String data=DES.Encrypt_Text(Data.toJSONString(),"keyc_v");
         message.put("data",data);
         //System.out.println(message);
         return message.toJSONString();
@@ -245,10 +256,10 @@ public class DownloadServer {
         Data.put("num",2);
         List<String> filename=new ArrayList<String>();
         filename.add("lihao.txt");
-        filename.add("liu.jpg");
+       // filename.add("liu.jpg");
         Data.put("filename",filename);
         //Data DEs kc_v加密
-        String data=Data.toJSONString();
+        String data=DES.Encrypt_Text(Data.toJSONString(),"keyc_v");
         message.put("data",data);
         //System.out.println(message);
         return message.toJSONString();
