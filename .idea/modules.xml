@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AS/AS.iml" filepath="$PROJECT_DIR$/AS/AS.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Client-Swing/Client-Swing.iml" filepath="$PROJECT_DIR$/Client-Swing/Client-Swing.iml" />
       <module fileurl="file://$PROJECT_DIR$/DES/DES.iml" filepath="$PROJECT_DIR$/DES/DES.iml" />
       <module fileurl="file://$PROJECT_DIR$/Download_Server/Download_Server.iml" filepath="$PROJECT_DIR$/Download_Server/Download_Server.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/GWZ-NetDisk.iml" filepath="$PROJECT_DIR$/.idea/GWZ-NetDisk.iml" />
@@ -11,6 +10,7 @@
       <module fileurl="file://$PROJECT_DIR$/TEST/TEST.iml" filepath="$PROJECT_DIR$/TEST/TEST.iml" />
       <module fileurl="file://$PROJECT_DIR$/TGS/TGS.iml" filepath="$PROJECT_DIR$/TGS/TGS.iml" />
       <module fileurl="file://$PROJECT_DIR$/Upload_Server/Upload_Server.iml" filepath="$PROJECT_DIR$/Upload_Server/Upload_Server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/client-fx/client-fx.iml" filepath="$PROJECT_DIR$/client-fx/client-fx.iml" />
     </modules>
   </component>
 </project>

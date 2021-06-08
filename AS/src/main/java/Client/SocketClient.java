@@ -92,6 +92,7 @@ public class SocketClient {
                 pw.flush();
                 //socket.shutdownOutput();//使用完关闭
                 // 从服务器接收的信息
+
                 is = socket.getInputStream();
                 br = new BufferedReader(new InputStreamReader(is));
 

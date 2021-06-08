@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500" minWidth="600" prefHeight="800.0"
+            prefWidth="1280.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/15.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="App.Controller.User_Controller">
+    <children>
+        <GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                  AnchorPane.topAnchor="0.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="220.0" minWidth="220.0" prefWidth="220.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <children>
+                <AnchorPane style="-fx-background-color: #f5f5f6;">
+                    <children>
+                        <GridPane layoutX="-35.0" layoutY="181.0" AnchorPane.bottomAnchor="0.0"
+                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints maxHeight="100.0" minHeight="100.0" prefHeight="100.0"
+                                                vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="10.0" prefHeight="561.0" vgrow="SOMETIMES"/>
+                                <RowConstraints maxHeight="80.0" minHeight="80.0" prefHeight="80.0" vgrow="SOMETIMES"/>
+                            </rowConstraints>
+                            <children>
+                                <GridPane maxHeight="100.0" minHeight="100.0" prefHeight="100.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="60.0"
+                                                           prefWidth="60.0"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <children>
+                                        <Label fx:id="logo_Label" GridPane.halignment="RIGHT"
+                                               GridPane.valignment="BOTTOM">
+                                            <GridPane.margin>
+                                                <Insets bottom="18.0" right="5.0"/>
+                                            </GridPane.margin>
+                                        </Label>
+                                        <Label text="瓜娃子云盘" GridPane.columnIndex="1" GridPane.halignment="LEFT"
+                                               GridPane.valignment="BOTTOM">
+                                            <GridPane.margin>
+                                                <Insets bottom="18.0" left="5.0"/>
+                                            </GridPane.margin>
+                                            <font>
+                                                <Font name="System Bold" size="22.0"/>
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </GridPane>
+                                <GridPane GridPane.rowIndex="1">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0"
+                                                        vgrow="SOMETIMES"/>
+                                        <RowConstraints maxHeight="55.0" minHeight="55.0" prefHeight="55.0"
+                                                        vgrow="SOMETIMES"/>
+                                        <RowConstraints maxHeight="55.0" minHeight="55.0" prefHeight="55.0"
+                                                        vgrow="SOMETIMES"/>
+                                        <RowConstraints maxHeight="55.0" minHeight="55.0" prefHeight="55.0"
+                                                        vgrow="SOMETIMES"/>
+                                        <RowConstraints maxHeight="55.0" minHeight="55.0" prefHeight="55.0"
+                                                        vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <children>
+                                        <Button fx:id="file_Button" alignment="TOP_LEFT" maxHeight="34.0"
+                                                maxWidth="1.7976931348623157E308" minHeight="34.0" minWidth="-Infinity"
+                                                mnemonicParsing="false" onMouseClicked="#file_Button_Clicked"
+                                                onMouseEntered="#file_Button_Enter" onMouseExited="#file_Button_Exit"
+                                                prefHeight="34.0"
+                                                style="-fx-border-width: 0; -fx-background-color: transparent; -fx-background-radius: 7; -fx-border-radius: 7;"
+                                                textFill="#000000a7" GridPane.halignment="CENTER" GridPane.rowIndex="1"
+                                                GridPane.valignment="CENTER">
+                                            <GridPane.margin>
+                                                <Insets left="20.0" right="20.0"/>
+                                            </GridPane.margin>
+                                            <font>
+                                                <Font name="System Bold" size="17.0"/>
+                                            </font>
+                                            <graphic>
+                                                <GridPane>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="31.0"
+                                                                           minWidth="31.0" prefWidth="31.0"/>
+                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                           prefWidth="100.0"/>
+                                                    </columnConstraints>
+                                                    <rowConstraints>
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                        vgrow="SOMETIMES"/>
+                                                    </rowConstraints>
+                                                    <children>
+                                                        <Label fx:id="file_IMG_Label" GridPane.halignment="RIGHT"
+                                                               GridPane.valignment="CENTER">
+                                                            <GridPane.margin>
+                                                                <Insets right="5.0"/>
+                                                            </GridPane.margin>
+                                                        </Label>
+                                                        <Label text="文件" textFill="#0000009e" GridPane.columnIndex="1"
+                                                               GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+                                                            <GridPane.margin>
+                                                                <Insets left="5.0"/>
+                                                            </GridPane.margin>
+                                                            <font>
+                                                                <Font name="System Bold" size="16.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </GridPane>
+                                            </graphic>
+                                        </Button>
+                                        <Button fx:id="downloading_Button" alignment="TOP_LEFT" maxHeight="34.0"
+                                                maxWidth="1.7976931348623157E308" minHeight="34.0" minWidth="-Infinity"
+                                                mnemonicParsing="false" onMouseClicked="#downloading_Button_Clicked"
+                                                onMouseEntered="#downloading_Button_Enter"
+                                                onMouseExited="#downloading_Button_Exit" prefHeight="34.0"
+                                                style="-fx-border-width: 0; -fx-background-color: transparent; -fx-background-radius: 7; -fx-border-radius: 7;"
+                                                textFill="#000000a7" GridPane.halignment="CENTER" GridPane.rowIndex="2"
+                                                GridPane.valignment="CENTER">
+                                            <GridPane.margin>
+                                                <Insets left="20.0" right="20.0"/>
+                                            </GridPane.margin>
+                                            <font>
+                                                <Font name="System Bold" size="17.0"/>
+                                            </font>
+                                            <graphic>
+                                                <GridPane>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="31.0"
+                                                                           minWidth="31.0" prefWidth="31.0"/>
+                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                           prefWidth="100.0"/>
+                                                    </columnConstraints>
+                                                    <rowConstraints>
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                        vgrow="SOMETIMES"/>
+                                                    </rowConstraints>
+                                                    <children>
+                                                        <Label fx:id="downloading_IMG_Label" GridPane.halignment="RIGHT"
+                                                               GridPane.valignment="CENTER">
+                                                            <GridPane.margin>
+                                                                <Insets right="5.0"/>
+                                                            </GridPane.margin>
+                                                        </Label>
+                                                        <Label text="下载中" textFill="#0000009e" GridPane.columnIndex="1"
+                                                               GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+                                                            <GridPane.margin>
+                                                                <Insets left="5.0"/>
+                                                            </GridPane.margin>
+                                                            <font>
+                                                                <Font name="System Bold" size="16.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </GridPane>
+                                            </graphic>
+                                        </Button>
+                                        <Button fx:id="uploading_Button" alignment="TOP_LEFT" maxHeight="34.0"
+                                                maxWidth="1.7976931348623157E308" minHeight="34.0" minWidth="-Infinity"
+                                                mnemonicParsing="false" onMouseClicked="#uploading_Button_Clicked"
+                                                onMouseEntered="#uploading_Button_Enter"
+                                                onMouseExited="#uploading_Button_Exit" prefHeight="34.0"
+                                                style="-fx-border-width: 0; -fx-background-color: transparent; -fx-background-radius: 7; -fx-border-radius: 7;"
+                                                textFill="#000000a7" GridPane.halignment="CENTER" GridPane.rowIndex="3"
+                                                GridPane.valignment="CENTER">
+                                            <GridPane.margin>
+                                                <Insets left="20.0" right="20.0"/>
+                                            </GridPane.margin>
+                                            <font>
+                                                <Font name="System Bold" size="17.0"/>
+                                            </font>
+                                            <graphic>
+                                                <GridPane>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="31.0"
+                                                                           minWidth="31.0" prefWidth="31.0"/>
+                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                           prefWidth="100.0"/>
+                                                    </columnConstraints>
+                                                    <rowConstraints>
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                        vgrow="SOMETIMES"/>
+                                                    </rowConstraints>
+                                                    <children>
+                                                        <Label fx:id="uploading_IMG_Label" GridPane.halignment="RIGHT"
+                                                               GridPane.valignment="CENTER">
+                                                            <GridPane.margin>
+                                                                <Insets right="5.0"/>
+                                                            </GridPane.margin>
+                                                        </Label>
+                                                        <Label text="上传中" textFill="#0000009e" GridPane.columnIndex="1"
+                                                               GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+                                                            <GridPane.margin>
+                                                                <Insets left="5.0"/>
+                                                            </GridPane.margin>
+                                                            <font>
+                                                                <Font name="System Bold" size="16.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </GridPane>
+                                            </graphic>
+                                        </Button>
+                                        <Button fx:id="completed_Button" alignment="TOP_LEFT" maxHeight="34.0"
+                                                maxWidth="1.7976931348623157E308" minHeight="34.0" minWidth="-Infinity"
+                                                mnemonicParsing="false" onMouseClicked="#completed_Button_Clicked"
+                                                onMouseEntered="#completed_Button_Enter"
+                                                onMouseExited="#completed_Button_Exit" prefHeight="34.0"
+                                                style="-fx-border-width: 0; -fx-background-color: transparent; -fx-background-radius: 7; -fx-border-radius: 7;"
+                                                textFill="#000000a7" GridPane.halignment="CENTER" GridPane.rowIndex="4"
+                                                GridPane.valignment="CENTER">
+                                            <GridPane.margin>
+                                                <Insets left="20.0" right="20.0"/>
+                                            </GridPane.margin>
+                                            <font>
+                                                <Font name="System Bold" size="17.0"/>
+                                            </font>
+                                            <graphic>
+                                                <GridPane>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="31.0"
+                                                                           minWidth="31.0" prefWidth="31.0"/>
+                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                           prefWidth="100.0"/>
+                                                    </columnConstraints>
+                                                    <rowConstraints>
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                        vgrow="SOMETIMES"/>
+                                                    </rowConstraints>
+                                                    <children>
+                                                        <Label fx:id="completed_IMG_Label" GridPane.halignment="RIGHT"
+                                                               GridPane.valignment="CENTER">
+                                                            <GridPane.margin>
+                                                                <Insets right="5.0"/>
+                                                            </GridPane.margin>
+                                                        </Label>
+                                                        <Label text="传输完成" textFill="#0000009e" GridPane.columnIndex="1"
+                                                               GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+                                                            <GridPane.margin>
+                                                                <Insets left="5.0"/>
+                                                            </GridPane.margin>
+                                                            <font>
+                                                                <Font name="System Bold" size="16.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </GridPane>
+                                            </graphic>
+                                        </Button>
+                                    </children>
+                                </GridPane>
+                                <GridPane maxHeight="80.0" minHeight="80.0" prefHeight="80.0" GridPane.rowIndex="2">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="60.0"
+                                                           prefWidth="60.0"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <children>
+                                        <Label fx:id="user_IMG_Label" GridPane.halignment="RIGHT" GridPane.rowIndex="2"
+                                               GridPane.valignment="CENTER">
+                                            <GridPane.margin>
+                                                <Insets right="5.0"/>
+                                            </GridPane.margin>
+                                        </Label>
+                                        <Label text="欢迎使用" textFill="#0000009e" GridPane.columnIndex="1"
+                                               GridPane.halignment="LEFT" GridPane.rowIndex="2"
+                                               GridPane.valignment="CENTER">
+                                            <GridPane.margin>
+                                                <Insets left="5.0"/>
+                                            </GridPane.margin>
+                                            <font>
+                                                <Font name="System Bold" size="16.0"/>
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </GridPane>
+                        <Separator prefWidth="200.0" AnchorPane.bottomAnchor="80.0" AnchorPane.leftAnchor="10.0"
+                                   AnchorPane.rightAnchor="10.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #ffffff;"
+                            GridPane.columnIndex="1">
+                    <children>
+                        <AnchorPane layoutX="179.0" layoutY="168.0" prefHeight="200.0" prefWidth="200.0"
+                                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <Separator layoutX="79.0" layoutY="101.0" prefWidth="200.0" AnchorPane.leftAnchor="25.0"
+                                           AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="100.0"/>
+                                <Label fx:id="title_Label" layoutX="67.0" layoutY="68.0" AnchorPane.leftAnchor="50.0"
+                                       AnchorPane.topAnchor="60.0">
+                                    <font>
+                                        <Font size="17.0"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="upload_IMG_Label" layoutX="985.0" layoutY="64.0"
+                                       onMouseClicked="#upload_Label_Cliecked" AnchorPane.rightAnchor="40.0"
+                                       AnchorPane.topAnchor="60.0"/>
+                                <!--<Label fx:id="search_IMG_Label" layoutX="917.0" layoutY="60.0" onMouseClicked="#search_Label_Clicked" AnchorPane.rightAnchor="80.0" AnchorPane.topAnchor="60.0" />-->
+                                <Label fx:id="update_IMG_Label" onMouseClicked="#update_Label_Clicked"
+                                       AnchorPane.rightAnchor="120.0" AnchorPane.topAnchor="60.0"/>
+                                <ScrollPane fx:id="show_File_ScrollPane" layoutX="43.0" layoutY="118.0"
+                                            prefHeight="604.0" prefWidth="974.0"
+                                            style="-fx-border-color: #ffffff; -fx-background: #ffffff;"
+                                            AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="35.0"
+                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="145.0">
+                                    <content>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="113.0"
+                                                    prefWidth="151.0"/>
+                                    </content>
+                                </ScrollPane>
+                                <Separator layoutX="25.0" layoutY="734.0" prefWidth="200.0"
+                                           AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="25.0"
+                                           AnchorPane.rightAnchor="25.0"/>
+                                <Separator layoutX="101.0" layoutY="124.0" prefWidth="200.0"
+                                           AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0"
+                                           AnchorPane.topAnchor="140.0"/>
+                                <Label layoutX="64.0" layoutY="117.0" text="文件名" textFill="#000000cd"
+                                       AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="110.0">
+                                    <font>
+                                        <Font size="16.0"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="progress_Label" layoutX="940.0" layoutY="114.0" text="进度" visible="false"
+                                       AnchorPane.rightAnchor="80.0" AnchorPane.topAnchor="110.0">
+                                    <font>
+                                        <Font size="16.0"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="download_IMG_Label" layoutX="989.0" layoutY="754.0"
+                                       onMouseClicked="#download_Label_Clicked" AnchorPane.bottomAnchor="28.0"
+                                       AnchorPane.rightAnchor="40.0"/>
+                                <Label fx:id="delete_File_IMG_Label" layoutX="965.0" layoutY="753.0"
+                                       onMouseClicked="#delete_File_Label_Clicked" AnchorPane.bottomAnchor="28.0"
+                                       AnchorPane.rightAnchor="80.0"/>
+                                <Label fx:id="delete_Download_Task_IMG_Label" layoutX="735.0" layoutY="760.0"
+                                       onMouseClicked="#delete_Download_Task_Clicked" visible="false"
+                                       AnchorPane.bottomAnchor="28.0" AnchorPane.rightAnchor="40.0"/>
+                                <Label fx:id="delete_Upload_Task_IMG_Label" onMouseClicked="#delete_Upload_Task_Clicked"
+                                       visible="false" AnchorPane.bottomAnchor="28.0" AnchorPane.rightAnchor="40.0"/>
+                            </children>
+                        </AnchorPane>
+                    </children>
+                </AnchorPane>
+            </children>
+        </GridPane>
+    </children>
+</AnchorPane>
