@@ -154,11 +154,11 @@ public class Login_Controller implements Initializable {
     /**
      * 注册时的网络通信
      *
-     * @param ID     zhanghao
-     * @param PassWD 密码
+     * @param user_ID     zhanghao
+     * @param user_PassWD 密码
      * @return 注册状态
      */
-    private int register(String ID, String PassWD) throws IOException {
+    private int register(String user_ID, String user_PassWD) throws IOException {
         Socket socket = null;
         OutputStream os = null;
         PrintWriter pw = null;
@@ -173,10 +173,10 @@ public class Login_Controller implements Initializable {
             pw = new PrintWriter(os);//字符编码
 
             String RSA_Type = "client-fx";
-            String RSA_ID = "client1";
+            String RSA_ID = user_ID;
             String message_CA;
             try {
-                message_CA = register_Message_1_RSA_Exchange(RSA_Type, RSA_ID);
+                message_CA = register_Message_1_CA_Exchange(RSA_Type, RSA_ID);
             } catch (IOException e) {
                 return 2;
             }
@@ -190,38 +190,70 @@ public class Login_Controller implements Initializable {
             br = new BufferedReader(new InputStreamReader(is));
             String server_Message = br.readLine();
             logger.debug("接收到的服务器消息" + server_Message);
-            //进行证书验证
-            if (VerifyLicense(server_Message)) {
-                GetSK_KDC();
-                //解密
-                JSONObject msg = JSON.parseObject(server_Message);//转换为Json对象
-                String CA = msg.getString("CA");//获取客户端证书
-                String DecryptedCA = RSA.Decrypt(CA, KDC_d, KDC_n);//证书使用KDC私钥解密
-                logger.debug("解密结果=" + DecryptedCA);
+            JSONObject msg = JSON.parseObject(server_Message);//转换为Json对象
+            if (msg.getInteger("id") == 2) {//报文是回复的证书
+                //进行证书验证
+                logger.debug("收到AS的2号报文");
+                if (VerifyLicense(server_Message)) {
+                    GetSK_KDC();
+                    //解密
+                    String CA = msg.getString("CA");//获取客户端证书
+                    String DecryptedCA = RSA.Decrypt(CA, KDC_d, KDC_n);//证书使用KDC私钥解密
+                    logger.debug("解密结果=" + DecryptedCA);
 
-                DES_RSA_Controller.EC_Show_Appendent(false, false, "", KDC_d.toString(), KDC_n.toString(), server_Message, CA);
+                    DES_RSA_Controller.EC_Show_Appendent(false, false, "", "unknown", KDC_d.toString() + KDC_n.toString(), DecryptedCA, CA);
 
-                //获取json具体内容
-                JSONObject ca = JSON.parseObject(DecryptedCA);//将解密的结果转换为一个Json对象
+                    //获取json具体内容
+                    JSONObject ca = JSON.parseObject(DecryptedCA);//将解密的结果转换为一个Json对象
 
-                String Server_ID = ca.getString("user_ID");//获取服务端ID
-                String PKc = ca.getString("PK");//获取服务端公钥
-                logger.debug("服务ID=" + Server_ID);
-                JSONObject pk = JSONObject.parseObject(PKc);
-                String cn = pk.getString("n");
-                String ce = pk.getString("e");
-                String[] PKas = PKc.split("\r\n");
-                BigInteger C_n = new BigInteger(cn);
-                BigInteger C_e = new BigInteger(ce);
+                    String Server_ID = ca.getString("user_ID");//获取服务端ID
+                    String PKc = ca.getString("PK");//获取服务端公钥
 
+                    logger.debug("服务ID=" + Server_ID);
+                    JSONObject pk = JSONObject.parseObject(PKc);
+                    String cn = pk.getString("n");
+                    String ce = pk.getString("e");
 
+                    //AS服务器公钥
+                    BigInteger C_n = new BigInteger(cn);
+                    BigInteger C_e = new BigInteger(ce);
+
+                    String message_3_Id_passWD_String = register_Message_3_ID_PassWD(user_ID, user_PassWD, C_e, C_n);
+
+                    //发送消息
+                    pw.write(message_3_Id_passWD_String + "\n");
+                    pw.flush();
+
+                    //接收消息
+                    is = socket.getInputStream();
+                    br = new BufferedReader(new InputStreamReader(is));
+                    String server_Message_0 = br.readLine();
+                    logger.debug("接收到的服务器消息3" + server_Message_0);
+                    JSONObject msg_0 = JSON.parseObject(server_Message_0);//转换为Json对象
+                    if (msg_0.getInteger("id") == 0) {//报文是回复的证书
+                        if (msg_0.getInteger("status") == 0) {
+                            return 1;
+                        } else if (msg_0.getInteger("status") == 1) {
+                            return 7;
+                        } else if (msg_0.getInteger("status") == 17) {
+                            return 6;
+                        } else {
+                            return 0;
+                        }
+                    } else {
+                        return 5;
+                    }
+                } else {
+                    return 3;
+                }
             } else {
-                return 3;
+                return 4;
             }
 
         } catch (Exception e) {
             logger.error("服务端已经断开连接\n");
             e.printStackTrace();
+            return 0;
         } finally {
             try {
                 if (!(br == null)) {
@@ -242,9 +274,7 @@ public class Login_Controller implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
-        return 0;
     }
 
     public void GetSK_KDC() throws Exception {//获取KDC私钥
@@ -292,10 +322,10 @@ public class Login_Controller implements Initializable {
         }
     }
 
-    private String register_Message_1_RSA_Exchange(String RSA_Type, String RSA_ID) throws IOException {
+    private String register_Message_1_CA_Exchange(String RSA_Type, String RSA_ID) throws IOException {
+        final int id = 1;
         RSA.GenerateCA(RSA_Type, RSA_ID);
         //发送证书
-
         File f = new File(RSA_Type + "/target/" + RSA_ID + "_CA.txt");
         if (!f.exists()) {
             logger.error("RSA错误！");
@@ -310,10 +340,27 @@ public class Login_Controller implements Initializable {
         }
         String str = sb.toString();
         JSONObject obj = new JSONObject();
-        obj.put("id", 1);
+        obj.put("id", id);
         obj.put("CA", str);
         obj.put("CAHash", Integer.toString(str.hashCode()));
         return obj.toJSONString();
+    }
+
+    private String register_Message_3_ID_PassWD(String user_ID, String user_PassWD, BigInteger e, BigInteger n) {
+        final int id = 3;
+
+        JSONObject Json_ID_PASSWD = new JSONObject();
+        Json_ID_PASSWD.put("user_ID", user_ID);
+        Json_ID_PASSWD.put("password", user_PassWD);
+        String origin_ID_PASSWD = Json_ID_PASSWD.toJSONString();
+        String encrypt_ID_PASSWD = RSA.Encrypt(origin_ID_PASSWD, e, n);
+        DES_RSA_Controller.EC_Show_Appendent(false, true, "", "e:\t" + String.valueOf(e) + "\tn:\t" + String.valueOf(n), "unknown", origin_ID_PASSWD, encrypt_ID_PASSWD);
+
+        //报文
+        JSONObject json_Message_3 = new JSONObject();
+        json_Message_3.put("id", id);
+        json_Message_3.put("registerData", encrypt_ID_PASSWD);
+        return json_Message_3.toJSONString();
     }
 
 
@@ -384,7 +431,7 @@ public class Login_Controller implements Initializable {
 
                     switch (register_Result) {
                         case 0:
-                            show_Error_Alerter("注册状态", "其他错误", "其他未知错误，请尝试重启应用程序！");
+                            show_Error_Alerter("注册状态", "服务端错误", "服务端异常断开！");
                             break;
                         case 1:
                             show_Error_Alerter("注册状态", "注册成功", "请使用账号密码登录！");
@@ -394,6 +441,19 @@ public class Login_Controller implements Initializable {
                             break;
                         case 3:
                             show_Error_Alerter("注册状态", "认证服务端错误", "请重试");
+                            break;
+                        case 4:
+                            show_Error_Alerter("注册状态", "服务端连接失败", "请重试");
+                            break;
+                        case 5:
+                            show_Error_Alerter("注册状态", "服务端出错", "请重试");
+                            break;
+
+                        case 6:
+                            show_Error_Alerter("注册状态", "注册出错，用户名已经存在", "请尝试使用其他用户名注册");
+                            break;
+                        case 7:
+                            show_Error_Alerter("注册状态", "注册失败", "服务端表示注册错误，原因未知");
                             break;
                         default:
                             show_Error_Alerter("注册状态", "其他错误", "其他未知错误，请尝试重启应用程序");

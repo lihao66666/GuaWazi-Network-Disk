@@ -35,6 +35,7 @@ public class AS_Server {
     private BigInteger C_e;
     private BigInteger C_n;
 
+
     public AS_Server(String Client_AD) {//构造函数
         logger.debug("点对点UploadServer已启动,客户端IP:" + Client_AD);
         this.Client_AD = Client_AD;//处理该地址的server
@@ -144,7 +145,7 @@ public class AS_Server {
         }
         String ca = ca_sb.toString();//获取到证书
         JSONObject message = new JSONObject();//创建一个Json对象
-        message.put("ID", 2);//设置报文ID为2
+        message.put("id", 2);//设置报文ID为2
         message.put("CA", ca);//放入证书
         message.put("CAHash", new String(Integer.toString(ca.hashCode())));//放入证书的Hash值
         reader.close();
@@ -152,13 +153,34 @@ public class AS_Server {
         return message.toJSONString();
     }
 
-    public int ClientRegister(String message) throws SQLException {//客户端注册函数
+    public int ClientRegister(String message) throws SQLException, IOException, ClassNotFoundException {//客户端注册函数
         JSONObject msg = JSON.parseObject(message);//将传入的字符串转换为Json对象
-        String user_id = msg.getString("user_ID");//获取用户ID
-        String password = msg.getString("password");//获取用户密码
+        String encrypt_ID_PASSWD = msg.getString("registerData");
+
+        File file = new File("AS/target/" + Server_ID + "_RSA_Key.txt");//AS打开自己的密钥文件
+        FileInputStream fip = new FileInputStream(file);
+        InputStreamReader reader = new InputStreamReader(fip, "UTF-8");
+        StringBuffer sb = new StringBuffer();
+        while (reader.ready()) sb.append((char) reader.read());
+        String str = sb.toString();
+        JSONObject AS_obj = JSON.parseObject(str);
+        JSONObject PK_obj = JSON.parseObject(AS_obj.getString("PK"));
+        JSONObject SK_obj = JSON.parseObject(AS_obj.getString("SK"));
+        BigInteger as_d = new BigInteger(SK_obj.getString("d"));//获取到AS的d
+        BigInteger as_n = new BigInteger(SK_obj.getString("n"));//获取到AS的n
+
+        String origin_ID_PASSWD = RSA.Decrypt(encrypt_ID_PASSWD, as_d, as_n);
+        DES_RSA_Controller.EC_Show_Appendent(false, false, "", PK_obj.toJSONString(), SK_obj.toJSONString(), encrypt_ID_PASSWD, origin_ID_PASSWD);
+
+        JSONObject id_pass_Json = JSON.parseObject(origin_ID_PASSWD);
+        String user_id = id_pass_Json.getString("user_ID");//获取用户ID
+        String password = id_pass_Json.getString("password");//获取用户密码
+        logger.debug(user_id+password);
+        if(conn.isClosed())ConnectToDB();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery("select `User_ID` from `User`");//从数据库中获取所有用户ID
         while (rs.next()) {//如果对象中有数据，就会循环打印出来
+            logger.debug(rs.getString("User_ID"));
             if (rs.getString("User_ID").equals(user_id)) {//判断该ID是否已经存在数据库中
                 logger.error("该账户已存在");
                 return 17;//返回状态码17，该账户已经注册

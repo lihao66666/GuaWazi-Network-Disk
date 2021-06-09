@@ -65,6 +65,7 @@ public class ServerThread extends Thread {
                         } else {
                             logger.info("证书认证成功");
                             String msg = server.GenerateASLicenseMessage();//回传证书
+                            logger.debug(message);
                             pw.write(msg + "\n");//发送
                             pw.flush();
                         }
@@ -102,11 +103,11 @@ public class ServerThread extends Thread {
                     default:
                         logger.error("异常报文");
                 }
-                Scanner input = new Scanner(System.in);
+                /*Scanner input = new Scanner(System.in);
                 System.out.println("服务端输入：");
                 String str = input.next();
                 pw.write(str + "\n");
-                pw.flush();
+                pw.flush();*/
                 //  socket.shutdownOutput();
             }
         } catch (Exception e) {
