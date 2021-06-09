@@ -195,7 +195,7 @@ public class AS_Server {
         }
     }
 
-    public int ClientLogin(String message) throws IOException, SQLException {//客户端登录状态函数
+    public int ClientLogin(String message) throws IOException, SQLException, ClassNotFoundException {//客户端登录状态函数
         File file = new File("AS/target/" + Server_ID + "_RSA_Key.txt");//AS打开自己的密钥文件
         FileInputStream fip = new FileInputStream(file);
         InputStreamReader reader = new InputStreamReader(fip, "UTF-8");
@@ -218,6 +218,9 @@ public class AS_Server {
         String password = loginData.getString("password");//获取用户密码
         logger.debug("User_ID====" + user_id);
         logger.debug("password=====" + password);
+        if(conn.isClosed()) {
+            ConnectToDB();
+        }
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery("select * from `User`");//从数据库中获取所有的用户名和密码
         while (rs.next()) {//如果对象中有数据，就会循环打印出来

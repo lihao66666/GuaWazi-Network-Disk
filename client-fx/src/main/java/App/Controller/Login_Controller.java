@@ -1,5 +1,6 @@
 package App.Controller;
 
+import App.Main;
 import App.Starter;
 import RSA.RSA;
 import com.alibaba.fastjson.JSON;
@@ -17,6 +18,9 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.ResourceBundle;
 
 
@@ -142,13 +146,168 @@ public class Login_Controller implements Initializable {
     /**
      * 登录时的网络通信
      *
-     * @param ID     账号
-     * @param PassWD 密码
+     * @param user_ID     账号
+     * @param user_PassWD 密码
      * @return 登录状态
      */
-    private int login(String ID, String PassWD) {
+    private int login(String user_ID, String user_PassWD) {
+        Socket socket = null;
+        OutputStream os = null;
+        PrintWriter pw = null;
+        InputStream is = null;
+        BufferedReader br = null;
 
-        return 0;
+        try {
+            // 和服务器创建连接
+            socket = new Socket(Main.AS_IP, Main.AS_Port);
+            logger.debug("尝试连接服务器");
+
+            os = socket.getOutputStream();//字节流(二进制)
+            pw = new PrintWriter(os);//字符编码
+
+            String RSA_Type = "client-fx";
+            String RSA_ID = user_ID;
+            String message_CA;
+            try {
+                message_CA = Message_1_CA_Exchange(RSA_Type, RSA_ID);
+            } catch (IOException e) {
+                return 2;
+            }
+            logger.debug("发送证书\t" + message_CA);
+            //发送消息
+            pw.write(message_CA + "\n");
+            pw.flush();
+
+            //接收消息
+            is = socket.getInputStream();
+            br = new BufferedReader(new InputStreamReader(is));
+            String server_Message = br.readLine();
+            logger.debug("接收到的服务器消息" + server_Message);
+            JSONObject msg = JSON.parseObject(server_Message);//转换为Json对象
+            if (msg.getInteger("id") == 2) {//报文是回复的证书
+                //进行证书验证
+                logger.debug("收到AS的2号报文");
+                if (VerifyLicense(server_Message)) {
+                    GetSK_KDC();
+                    //解密
+                    String CA = msg.getString("CA");//获取客户端证书
+                    String DecryptedCA = RSA.Decrypt(CA, KDC_d, KDC_n);//证书使用KDC私钥解密
+                    logger.debug("解密结果=" + DecryptedCA);
+                    DES_RSA_Controller.EC_Show_Appendent(false, false, "", "unknown", KDC_d.toString() + KDC_n.toString(), DecryptedCA, CA);
+
+                    //获取json具体内容
+                    JSONObject ca = JSON.parseObject(DecryptedCA);//将解密的结果转换为一个Json对象
+
+                    String Server_ID = ca.getString("user_ID");//获取服务端ID
+                    String PKc = ca.getString("PK");//获取服务端公钥
+
+                    logger.debug("服务ID=" + Server_ID);
+                    JSONObject pk = JSONObject.parseObject(PKc);
+                    String cn = pk.getString("n");
+                    String ce = pk.getString("e");
+
+                    //AS服务器公钥
+                    BigInteger C_n = new BigInteger(cn);
+                    BigInteger C_e = new BigInteger(ce);
+
+                    String message_3_Id_PassWD_String = Message_3_ID_PassWD(user_ID, user_PassWD, C_e, C_n, true);
+
+                    //发送消息
+                    pw.write(message_3_Id_PassWD_String + "\n");
+                    pw.flush();
+
+                    //接收消息
+                    is = socket.getInputStream();
+                    br = new BufferedReader(new InputStreamReader(is));
+                    String server_Message_0 = br.readLine();
+                    logger.debug("接收到的服务器消息" + server_Message_0);
+                    JSONObject msg_0 = JSON.parseObject(server_Message_0);//转换为Json对象
+                    if (msg_0.getInteger("id") == 0) {//报文是回复的证书
+                        if (msg_0.getInteger("status") == 4) {
+                            String message_5_Ticket_Tgs_String = message_5_Ticket_tgs(user_ID);
+                            //发送消息
+                            pw.write(message_5_Ticket_Tgs_String + "\n");
+                            pw.flush();
+
+                            //接收消息
+                            is = socket.getInputStream();
+                            br = new BufferedReader(new InputStreamReader(is));
+
+                            String server_Message_6 = br.readLine();
+                            logger.debug("接收到的服务器消息" + server_Message_6);
+                            JSONObject msg_6 = JSON.parseObject(server_Message_6);
+                            if (msg_6.getInteger("id") == 6) {
+                                Main.ticket_TGS = msg_6.getString("encryptedTicket");
+                                logger.debug("获取到Ticket-tgs：" + Main.ticket_TGS);
+                                int status = get_TicketV();
+
+                                return status;
+                            } else {
+                                return 7;
+                            }
+                        } else if (msg_0.getInteger("status") == 2) {
+                            return 6;
+                        } else if (msg_0.getInteger("status") == 3) {
+                            return 6;
+                        } else {
+                            return 0;
+                        }
+                    } else {
+                        return 5;
+                    }
+                } else {
+                    return 3;
+                }
+            } else {
+                return 4;
+            }
+
+        } catch (Exception e) {
+            logger.error("服务端已经断开连接\n");
+            e.printStackTrace();
+            return 0;
+        } finally {
+            try {
+                if (!(br == null)) {
+                    br.close();
+                }
+                if (!(is == null)) {
+                    is.close();
+                }
+                if (!(os == null)) {
+                    os.close();
+                }
+                if (!(pw == null)) {
+                    pw.close();
+                }
+                if (!(socket == null)) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private int get_TicketV() {
+
+
+        return 1;
+    }
+
+
+    private String message_5_Ticket_tgs(String User_ID) {
+        final int id = 5;
+        //报文
+        JSONObject json_Message_5 = new JSONObject();
+        json_Message_5.put("id", id);
+        json_Message_5.put("user_ID", User_ID);
+        json_Message_5.put("IDtgs", Main.TGS_ID);
+        Date TS = new Date();
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(TS);
+        json_Message_5.put("TS1", TS);
+        return json_Message_5.toJSONString();
     }
 
     /**
@@ -166,7 +325,7 @@ public class Login_Controller implements Initializable {
         BufferedReader br = null;
         try {
             // 和服务器创建连接
-            socket = new Socket("localhost", 8888);
+            socket = new Socket(Main.AS_IP, Main.AS_Port);
             logger.debug("尝试连接服务器");
 
             os = socket.getOutputStream();//字节流(二进制)
@@ -176,7 +335,7 @@ public class Login_Controller implements Initializable {
             String RSA_ID = user_ID;
             String message_CA;
             try {
-                message_CA = register_Message_1_CA_Exchange(RSA_Type, RSA_ID);
+                message_CA = Message_1_CA_Exchange(RSA_Type, RSA_ID);
             } catch (IOException e) {
                 return 2;
             }
@@ -218,7 +377,7 @@ public class Login_Controller implements Initializable {
                     BigInteger C_n = new BigInteger(cn);
                     BigInteger C_e = new BigInteger(ce);
 
-                    String message_3_Id_passWD_String = register_Message_3_ID_PassWD(user_ID, user_PassWD, C_e, C_n);
+                    String message_3_Id_passWD_String = Message_3_ID_PassWD(user_ID, user_PassWD, C_e, C_n, false);
 
                     //发送消息
                     pw.write(message_3_Id_passWD_String + "\n");
@@ -322,7 +481,7 @@ public class Login_Controller implements Initializable {
         }
     }
 
-    private String register_Message_1_CA_Exchange(String RSA_Type, String RSA_ID) throws IOException {
+    private String Message_1_CA_Exchange(String RSA_Type, String RSA_ID) throws IOException {
         final int id = 1;
         RSA.GenerateCA(RSA_Type, RSA_ID);
         //发送证书
@@ -346,8 +505,16 @@ public class Login_Controller implements Initializable {
         return obj.toJSONString();
     }
 
-    private String register_Message_3_ID_PassWD(String user_ID, String user_PassWD, BigInteger e, BigInteger n) {
-        final int id = 3;
+    private String Message_3_ID_PassWD(String user_ID, String user_PassWD, BigInteger e, BigInteger n, Boolean is_login) {
+        final int id;
+        String data_send_head;
+        if (is_login) {
+            id = 4;
+            data_send_head = "loginData";
+        } else {
+            id = 3;
+            data_send_head = "registerData";
+        }
 
         JSONObject Json_ID_PASSWD = new JSONObject();
         Json_ID_PASSWD.put("user_ID", user_ID);
@@ -359,7 +526,7 @@ public class Login_Controller implements Initializable {
         //报文
         JSONObject json_Message_3 = new JSONObject();
         json_Message_3.put("id", id);
-        json_Message_3.put("registerData", encrypt_ID_PASSWD);
+        json_Message_3.put(data_send_head, encrypt_ID_PASSWD);
         return json_Message_3.toJSONString();
     }
 
@@ -389,11 +556,33 @@ public class Login_Controller implements Initializable {
 
                 switch (login_Result) {
                     case 0:
-                        show_Error_Alerter("错误", "用户名或者密码错误", "请重新输入用户名或者密码!");
+                        show_Error_Alerter("登录状态", "服务端错误", "服务端异常断开！请重试！");
                         break;
                     case 1:
-
+                        show_Error_Alerter("登录状态", "登录成功", "正在进入云盘");
+                        break;
+                    case 2:
+                        show_Error_Alerter("登录状态", "RSA加密IO错误", "请重试");
+                        break;
+                    case 3:
+                        show_Error_Alerter("登录状态", "认证服务端错误", "请重试");
+                        break;
+                    case 4:
+                        show_Error_Alerter("登录状态", "服务端连接失败", "请重试");
+                        break;
+                    case 5:
+                        show_Error_Alerter("登录状态", "服务端出错", "请重试");
+                        break;
+                    case 6:
+                        show_Error_Alerter("登录状态", "登录出错，用户名或密码错误", "请确认用户名或者密码正确后重试");
+                        break;
+                    case 7:
+                        show_Error_Alerter("登录状态", "登录失败", "未接收到TGS票据");
+                        break;
+                    default:
+                        show_Error_Alerter("登录状态", "其他错误", "其他未知错误，请尝试重启应用程序");
                 }
+
 
             }
         }
@@ -431,7 +620,7 @@ public class Login_Controller implements Initializable {
 
                     switch (register_Result) {
                         case 0:
-                            show_Error_Alerter("注册状态", "服务端错误", "服务端异常断开！");
+                            show_Error_Alerter("注册状态", "服务端错误", "服务端异常断开！请重试！");
                             break;
                         case 1:
                             show_Error_Alerter("注册状态", "注册成功", "请使用账号密码登录！");

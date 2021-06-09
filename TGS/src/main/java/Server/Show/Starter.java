@@ -1,7 +1,7 @@
 package Server.Show;
 
-import Server.AS_Server;
 import Server.SocketServer;
+import Server.TGS_Server;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -76,7 +76,7 @@ public class Starter extends Application {
                     EC_Stage.setScene(EC_Scene);
                     EC_Stage.setMinWidth(300);
                     EC_Stage.setMinHeight(400);
-                    EC_Stage.setTitle("加解密展示 | AS端 | 瓜娃子云盘");
+                    EC_Stage.setTitle("加解密展示 | TGS端 | 瓜娃子云盘");
                     EC_Stage.setX(0);
                     EC_Stage.setY(0);
                     EC_Stage.show();
@@ -92,7 +92,6 @@ public class Starter extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Starter.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
-
 
     public static void setRoot(String fxml, String title, int width, int height, int min_Width, int min_Height, int max_Width, int max_Height) throws IOException {
         current_Stage.close();
@@ -120,18 +119,9 @@ public class Starter extends Application {
 
 
     public void Server_Main_App() throws SQLException, ClassNotFoundException {
-
         SocketServer server = new SocketServer(8888);
-        try {
-            AS_Server.ConnectToDB();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        TGS_Server.ConnectToDB();
         server.ServerListener();
-
     }
-
 
 }
