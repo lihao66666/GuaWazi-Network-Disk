@@ -2,6 +2,7 @@ package App.Controller;
 
 import App.Main;
 import App.Starter;
+import DES.DES_des;
 import RSA.RSA;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -39,8 +40,6 @@ public class Login_Controller implements Initializable {
     private GridPane register_Grid_Pane;
     @FXML
     private AnchorPane root_Layout;
-    @FXML
-    private Button test_Button;
     @FXML
     private Button login_Button;
     @FXML
@@ -92,7 +91,7 @@ public class Login_Controller implements Initializable {
         alert.setTitle(title);
         alert.setHeaderText(headText);
         alert.setContentText(contentText);
-        alert.showAndWait();
+        alert.show();
     }
 
 
@@ -237,10 +236,18 @@ public class Login_Controller implements Initializable {
                             logger.debug("接收到的服务器消息" + server_Message_6);
                             JSONObject msg_6 = JSON.parseObject(server_Message_6);
                             if (msg_6.getInteger("id") == 6) {
-                                Main.ticket_TGS = msg_6.getString("encryptedTicket");
+                                String msg_6_en_String = msg_6.getString("encryptedTicket");
+                                String msg_6_de_String = DES_des.Decrypt_Text(msg_6_en_String, Integer.toString(user_ID.hashCode()));
+                                JSONObject msg_6_Json = JSONObject.parseObject(msg_6_de_String);
+                                Main.ticket_TGS = msg_6_Json.getString("Ticket_tgs");
+                                Main.K_C_TGS = msg_6_Json.getString("Kc_tgs");
                                 logger.debug("获取到Ticket-tgs：" + Main.ticket_TGS);
-                                int status = get_TicketV();
 
+                                Main.ADc = socket.getInetAddress().getHostAddress();
+                                int status = get_TicketV(user_ID, Main.up_Load_Server_ID);
+                                if (status == 1) {
+                                    status = get_TicketV(user_ID, Main.down_Load_Server_ID);
+                                }
                                 return status;
                             } else {
                                 return 7;
@@ -289,10 +296,91 @@ public class Login_Controller implements Initializable {
         }
     }
 
-    private int get_TicketV() {
+    private int get_TicketV(String user_ID, String id_V) {
+        Socket socket = null;
+        OutputStream os = null;
+        PrintWriter pw = null;
+        InputStream is = null;
+        BufferedReader br = null;
+
+        try {
+            socket = new Socket(Main.TGS_IP, Main.TGS_Port);
+            logger.debug("尝试连接服务器");
+
+            os = socket.getOutputStream();//字节流(二进制)
+            pw = new PrintWriter(os);//字符编码
+            String au_Key = String.valueOf((user_ID + Main.TGS_ID).hashCode());
+
+            JSONObject au_Origin = new JSONObject();
+            au_Origin.put("IDc", user_ID);
+            au_Origin.put("ADc", Main.ADc);
+            au_Origin.put("TS3", new Date());
+            String au_Origin_String = au_Origin.toJSONString();
+            String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, au_Key);
+
+            JSONObject json_Message_7 = new JSONObject();
+            json_Message_7.put("id", 7);
+            json_Message_7.put("IDv", id_V);
+            json_Message_7.put("Ticket_TGS", Main.ticket_TGS);
+            json_Message_7.put("Authenticator_c", au_Encrypt_String);
+            String message_7 = json_Message_7.toJSONString();
 
 
-        return 1;
+            logger.debug("发送报文7\t" + message_7);
+            //发送消息
+            pw.write(message_7 + "\n");
+            pw.flush();
+
+            //接收消息
+            is = socket.getInputStream();
+            br = new BufferedReader(new InputStreamReader(is));
+            String server_Message_8 = br.readLine();
+            logger.debug("接收到的服务器消息" + server_Message_8);
+
+            JSONObject msg_8 = JSON.parseObject(server_Message_8);//转换为Json对象
+            if (msg_8.getInteger("id") == 8) {
+                if (id_V.equals(Main.up_Load_Server_ID)) {
+                    String msg_8_en_String = msg_8.getString("TGS_C");
+                    String msg_8_de_String = DES_des.Decrypt_Text(msg_8_en_String, Main.K_C_TGS);
+                    JSONObject msg_8_Json = JSON.parseObject(msg_8_de_String);
+                    Main.ticket_UP1 = msg_8_Json.getString("Ticket_V");
+                    Main.K_C_UP1 = msg_8_Json.getString("Kc_v");
+                } else {
+                    String msg_8_en_String = msg_8.getString("TGS_C");
+                    String msg_8_de_String = DES_des.Decrypt_Text(msg_8_en_String, Main.K_C_TGS);
+                    JSONObject msg_8_Json = JSON.parseObject(msg_8_de_String);
+                    Main.ticket_DOWN1 = msg_8_Json.getString("Ticket_V");
+                    Main.K_C_DOWN1 = msg_8_Json.getString("Kc_v");
+                }
+                return 1;//成功
+            } else {
+                return 11;//未知错误，TGS会话中遇到未知错误
+            }
+        } catch (Exception e) {
+            logger.error("TGS 服务端已经断开连接\n");
+            e.printStackTrace();
+            return 10;//TGS异常断开连接
+        } finally {
+            try {
+                if (!(br == null)) {
+                    br.close();
+                }
+                if (!(is == null)) {
+                    is.close();
+                }
+                if (!(os == null)) {
+                    os.close();
+                }
+                if (!(pw == null)) {
+                    pw.close();
+                }
+                if (!(socket == null)) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -304,8 +392,6 @@ public class Login_Controller implements Initializable {
         json_Message_5.put("user_ID", User_ID);
         json_Message_5.put("IDtgs", Main.TGS_ID);
         Date TS = new Date();
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(TS);
         json_Message_5.put("TS1", TS);
         return json_Message_5.toJSONString();
     }
@@ -532,7 +618,7 @@ public class Login_Controller implements Initializable {
 
 
     @FXML
-    private void do_Login() {
+    private void do_Login() throws IOException {
         String ID = login_User_Id_TextField.getText();
         String PassWD = login_User_PassWD_Field.getText();
         logger.debug("输入ID： " + ID + "\t\tPassWD: " + PassWD);
@@ -559,7 +645,11 @@ public class Login_Controller implements Initializable {
                         show_Error_Alerter("登录状态", "服务端错误", "服务端异常断开！请重试！");
                         break;
                     case 1:
-                        show_Error_Alerter("登录状态", "登录成功", "正在进入云盘");
+                        Main.User_ID = ID;
+                        logger.debug("与UP1的通信密钥：" + Main.K_C_UP1);
+                        logger.debug("与DOWN1的通信密钥：" + Main.K_C_DOWN1);
+                        show_Info_Alerter("登录状态", "登录成功", "正在进入云盘");
+                        Starter.setRoot("User", "瓜娃子云盘", 1280, 800, 980, 600);
                         break;
                     case 2:
                         show_Error_Alerter("登录状态", "RSA加密IO错误", "请重试");
@@ -578,6 +668,12 @@ public class Login_Controller implements Initializable {
                         break;
                     case 7:
                         show_Error_Alerter("登录状态", "登录失败", "未接收到TGS票据");
+                        break;
+                    case 10:
+                        show_Error_Alerter("登录状态", "登录失败", "TGS异常断开连接");
+                        break;
+                    case 11:
+                        show_Error_Alerter("登录状态", "登录失败", "未知错误，TGS会话中遇到未知错误");
                         break;
                     default:
                         show_Error_Alerter("登录状态", "其他错误", "其他未知错误，请尝试重启应用程序");
@@ -623,7 +719,7 @@ public class Login_Controller implements Initializable {
                             show_Error_Alerter("注册状态", "服务端错误", "服务端异常断开！请重试！");
                             break;
                         case 1:
-                            show_Error_Alerter("注册状态", "注册成功", "请使用账号密码登录！");
+                            show_Info_Alerter("注册状态", "注册成功", "请使用账号密码登录！");
                             break;
                         case 2:
                             show_Error_Alerter("注册状态", "RSA加密IO错误", "请重试");
@@ -651,11 +747,6 @@ public class Login_Controller implements Initializable {
                 }
             }
         }
-    }
-
-    @FXML
-    private void test_button_pressed() throws IOException {
-        Starter.setRoot("User", "瓜娃子云盘", 1280, 800, 980, 600);
     }
 
     @FXML

@@ -13,10 +13,11 @@ import java.util.GregorianCalendar;
 public class UploadServer {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(UploadServer.class);
     private static DES_des DES=new DES_des();
-    static final String Server_ID="1";//服务器的ID(固定)
-    static final String Kv="key";//保存上传 Server 与 TGS 的密钥
+    static final String Server_ID="UP1";//服务器的ID(固定)
+    static final String Kv="12345678";//保存上传 Server 与 TGS 的密钥
     private String Client_ID;//客户端ID
-    private String Client_AD="192.168.0.1";//客户端IP地址
+//    private String Client_AD="192.168.0.1";//客户端IP地址
+    private String Client_AD;//客户端IP地址
     private Date TS5;//ticket签发时间
     private Date Lifetime4;//生存周期
     private String Kc_v=null;//记录访问客户端与服务端的密钥
@@ -72,7 +73,7 @@ public class UploadServer {
         message.put("id",10);
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(TS5);
-        calendar.add(calendar.SECOND,1); //把时间向后推迟1秒
+        calendar.add(calendar.HOUR,1); //把时间向后推迟1小时
         Date TS6=calendar.getTime(); //这个时间就是日期往后推一天的结果
         String ACK=DES.Encrypt_Text(TS6.toString(),this.Kc_v);//TS6进行DES Kc_v加密
         message.put("ACK",ACK);

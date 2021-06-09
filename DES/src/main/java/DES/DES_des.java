@@ -50,6 +50,8 @@ public class DES_des {
     public static String Encrypt_Text(String text, String Key) {
         logger.info("开始加密");
         logger.debug("传入明文内容：\t\t" + text);
+        logger.debug("传入密钥内容：\t\t" + Key);
+
         DES Encrypt = new DES(Key);
         byte[] encrypted_Text_byte_array = Encrypt.deal(text.getBytes(), 1);
         String encrypted_Text = Base64.getEncoder().encodeToString(encrypted_Text_byte_array);

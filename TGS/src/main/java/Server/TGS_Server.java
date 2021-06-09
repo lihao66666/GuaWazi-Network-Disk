@@ -66,18 +66,19 @@ public class TGS_Server {
             JSONObject obj = JSON.parseObject(message);
             IDv = obj.getString("IDv");
             String Ticket_TGS = obj.getString("Ticket_TGS");
+            if(conn.isClosed())ConnectToDB();
             Statement stmt = conn.createStatement();
             String Ktgs = null;
             ResultSet rs = stmt.executeQuery("select * from `Key_AS-TGS`");//从数据库中获取所有用户ID
             while (rs.next()) {//如果对象中有数据，就会循环打印出来
                 //if (rs.getString("AS_ID").equals(Server_ID)) {//判断该ID是否已经存在数据库中
-                    if (rs.getString("TGS_ID").equals(Server_ID))
-                        Ktgs = rs.getString("TGS-AS_Key");
+                if (rs.getString("TGS_ID").equals(Server_ID))
+                    Ktgs = rs.getString("TGS-AS_Key");
 
                 //}
             }
             Ticket_TGS = DES_des.Decrypt_Text(Ticket_TGS, Ktgs);
-            logger.debug("Ticket_Tgs====="+Ticket_TGS);
+            logger.debug("Ticket_Tgs=====" + Ticket_TGS);
             JSONObject Ticket_obj = JSON.parseObject(Ticket_TGS);
             Kc_tgs = Ticket_obj.getString("Kc_tgs");
             Client_ID = Ticket_obj.getString("IDc");
@@ -96,7 +97,7 @@ public class TGS_Server {
 
     }
 
-    public String GenerateTicketVMessage(String message) throws SQLException {
+    public String GenerateTicketVMessage(String message) throws SQLException, ClassNotFoundException {
         JSONObject TicketV_obj = new JSONObject();
         TicketV_obj.put("Kc_v", Integer.toString((Client_ID + IDv).hashCode()));
         TicketV_obj.put("IDc", Client_ID);
@@ -105,11 +106,12 @@ public class TGS_Server {
         TS4 = new Date();
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(TS4);
-        calendar.add(calendar.SECOND, 1); //把时间向后推迟1秒
+        calendar.add(calendar.HOUR, 1); //把时间向后推迟1小时
         LifeTime4 = calendar.getTime(); //这个时间就是日期往后推一天的结果
-        TicketV_obj.put("TS4",TS4);
-        TicketV_obj.put("LifeTime4",LifeTime4);
-        String TicketV=TicketV_obj.toJSONString();
+        TicketV_obj.put("TS4", TS4);
+        TicketV_obj.put("Lifetime4", LifeTime4);
+        String TicketV = TicketV_obj.toJSONString();
+        if (conn.isClosed()) ConnectToDB();
         Statement stmt = conn.createStatement();
         String Ktgs_v = null;
         ResultSet rs = stmt.executeQuery("select * from `Key_V-TGS`");//从数据库中获取所有用户ID
@@ -120,17 +122,17 @@ public class TGS_Server {
 
             }
         }
-        TicketV=DES_des.Encrypt_Text(TicketV,Ktgs_v);
-        JSONObject TGS_C_obj=new JSONObject();
+        TicketV = DES_des.Encrypt_Text(TicketV, Ktgs_v);
+        JSONObject TGS_C_obj = new JSONObject();
         TGS_C_obj.put("Kc_v", Integer.toString((Client_ID + IDv).hashCode()));
         TGS_C_obj.put("IDv", IDv);
-        TGS_C_obj.put("TS4",TS4);
-        TGS_C_obj.put("Ticket_V",TicketV);
-        String TGS_C=TGS_C_obj.toJSONString();
-        TGS_C= DES_des.Encrypt_Text(TGS_C,Kc_tgs);
-        JSONObject msg=new JSONObject();
-        msg.put("id",6);
-        msg.put("TGS_C",TGS_C);
+        TGS_C_obj.put("TS4", TS4);
+        TGS_C_obj.put("Ticket_V", TicketV);
+        String TGS_C = TGS_C_obj.toJSONString();
+        TGS_C = DES_des.Encrypt_Text(TGS_C, Kc_tgs);
+        JSONObject msg = new JSONObject();
+        msg.put("id", 8);
+        msg.put("TGS_C", TGS_C);
         return msg.toJSONString();
     }
 }

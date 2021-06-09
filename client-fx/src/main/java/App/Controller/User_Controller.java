@@ -1,6 +1,10 @@
 package App.Controller;
 
+import App.Main;
 import App.Starter;
+import DES.DES_des;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -13,7 +17,9 @@ import javafx.stage.FileChooser;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.net.Socket;
 import java.net.URL;
+import java.util.Date;
 import java.util.Random;
 import java.util.ResourceBundle;
 
@@ -181,19 +187,81 @@ public class User_Controller implements Initializable {
     }
 
     //更新文件列表
-    private void update_Files_List() {
-        //add some test files to the list
-        all_files_List = null;
-        all_files_List = new User_Show_All_File_ArrayList();
-        Random r = new Random();
-        for (int i = 0; i < 100; i++) {
-            String fileNametesttest = i + " testFile Name";
-            while (r.nextBoolean()) {
-                fileNametesttest += "\t" + r.nextLong();
-            }
-            all_files_List.add_New_File(fileNametesttest);
-        }
+    private int update_Files_List() {
+        Socket socket = null;
+        OutputStream os = null;
+        PrintWriter pw = null;
+        InputStream is = null;
+        BufferedReader br = null;
 
+        try {
+            socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
+            logger.debug("尝试连接服务器");
+
+            os = socket.getOutputStream();//字节流(二进制)
+            pw = new PrintWriter(os);//字符编码
+
+            JSONObject message_9_Au_Json = new JSONObject();
+            message_9_Au_Json.put("id", 9);
+            message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
+
+            JSONObject au_Origin = new JSONObject();
+            au_Origin.put("IDc", Main.User_ID);
+            au_Origin.put("ADc", Main.ADc);
+            au_Origin.put("TS5", new Date());
+            String au_Origin_String = au_Origin.toJSONString();
+            String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
+
+            message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
+
+            pw.write(message_9_Au_Json + "\n");
+            pw.flush();
+
+            //接收消息
+            is = socket.getInputStream();
+            br = new BufferedReader(new InputStreamReader(is));
+            String server_Message_10 = br.readLine();
+
+            JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
+            if (msg_10_Json.getInteger("id") == 10) {
+                //TODO 验证ACK
+
+
+            } else if (msg_10_Json.getInteger("id") == 0) {
+                if (msg_10_Json.getInteger("status") == 7) {
+                    return 7;//Ticket_Download_Server认证失败
+                } else {
+                    return 100;//未知错误
+                }
+            } else {
+                return 100;//未知错误
+            }
+        } catch (Exception e) {
+            logger.error("服务端已经断开连接\n");
+            e.printStackTrace();
+            return 0;//与服务器异常断开连接
+        } finally {
+            try {
+                if (!(br == null)) {
+                    br.close();
+                }
+                if (!(is == null)) {
+                    is.close();
+                }
+                if (!(os == null)) {
+                    os.close();
+                }
+                if (!(pw == null)) {
+                    pw.close();
+                }
+                if (!(socket == null)) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return 100;
+            }
+        }
     }
 
     @FXML
@@ -306,8 +374,6 @@ public class User_Controller implements Initializable {
 
         delete_Task_Name = null;
         downloading_Button_Pane_Init();//更新面板取消选中
-
-
     }
 
     @FXML

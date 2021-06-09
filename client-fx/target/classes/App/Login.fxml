@@ -85,6 +85,5 @@
             </Button>
          </children>
       </Pane>
-      <Button fx:id="test_button" layoutX="345.0" layoutY="60.0" mnemonicParsing="false" onAction="#test_button_pressed" text="test" />
-   </children>
+     </children>
 </AnchorPane>

@@ -292,16 +292,16 @@ public class AS_Server {
             }
         }
         logger.debug("tck=====" + Ticket_tgs.toJSONString());
-        String Ticket = DES.DES_des.Encrypt_Text(Ticket_tgs.toJSONString(), Ktgs);
+        String Ticket = DES.DES_des.Encrypt_Text(Ticket_tgs.toJSONString(),Ktgs);
         logger.debug("加密后的TGS—ticket=====" + Ticket);
         JSONObject AS_C = new JSONObject();
         AS_C.put("Kc_tgs", Kc_tgs);
         AS_C.put("IDtgs", IDtgs);
         AS_C.put("TS2", TS2);
-        AS_C.put("Lifetime", LifeTime2);
+        AS_C.put("Lifetime2", LifeTime2);
         AS_C.put("Ticket_tgs", Ticket);
         String encryptedTicket = AS_C.toJSONString();
-        encryptedTicket = DES_des.Encrypt_Text(encryptedTicket, Integer.toString(IDc.hashCode()));
+        encryptedTicket = DES_des.Encrypt_Text(encryptedTicket,  Integer.toString(IDc.hashCode()));
         JSONObject msg = new JSONObject();
         msg.put("id", 6);
         msg.put("encryptedTicket", encryptedTicket);
