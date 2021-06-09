@@ -1,4 +1,4 @@
-package App.Controller;
+package Server.Show.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;

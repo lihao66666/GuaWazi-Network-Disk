@@ -1,7 +1,7 @@
-package App;
+package Server.Show;
 
-import App.Controller.EC_Show_Queue;
-import App.Controller.User_Controller;
+import Server.AS_Server;
+import Server.SocketServer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 
 public class Starter extends Application {
     Scene Login_Scene;//登录
@@ -25,12 +26,12 @@ public class Starter extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         //log
-        logger.debug("打开程序");
+        logger.debug("监控开启");
         //登录窗口
-        Login_Scene = new Scene(loadFXML("Login"));
+        Login_Scene = new Scene(loadFXML("do_Not_Delete"));
         current_Scene = Login_Scene;
         current_Stage = stage;
-        Starter.setRoot("Login", "登录 | 瓜娃子云盘", 420, 512, 420, 512, 420, 512);
+        Starter.setRoot("do_Not_Delete", "", 0, 0, 0, 0, 0, 0);
         current_Stage.setScene(current_Scene);
         current_Stage.show();
         Starter.setStageIcon(current_Stage);
@@ -44,28 +45,45 @@ public class Starter extends Application {
         Thread EC_Show_Background_Thread = new Thread(EC_Show_Thread_Task);
         EC_Show_Background_Thread.setDaemon(true);
         EC_Show_Background_Thread.start();
+
+        Runnable main_Server_Thread_Task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Server_Main_App();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Thread main_Server_Thread = new Thread(main_Server_Thread_Task);
+        main_Server_Thread.setDaemon(true);
+        main_Server_Thread.start();
+
     }
 
     public void EC_Show_Thread_Run() {
         try {
             EC_Scene = new Scene(loadFXML("DES_RSA"));
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    EC_Stage = new Stage();
+                    EC_Stage.setScene(EC_Scene);
+                    EC_Stage.setMinWidth(300);
+                    EC_Stage.setMinHeight(400);
+                    EC_Stage.setTitle("加解密展示 | AS端 | 瓜娃子云盘");
+                    EC_Stage.setX(0);
+                    EC_Stage.setY(0);
+                    EC_Stage.show();
+                    Starter.setStageIcon(EC_Stage);
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                EC_Stage = new Stage();
-                EC_Stage.setScene(EC_Scene);
-                EC_Stage.setMinWidth(300);
-                EC_Stage.setMinHeight(400);
-                EC_Stage.setTitle("加解密展示 | 瓜娃子云盘");
-                EC_Stage.setX(0);
-                EC_Stage.setY(0);
-                EC_Stage.show();
-                Starter.setStageIcon(EC_Stage);
-            }
-        });
     }
 
     static Parent loadFXML(String fxml) throws IOException {
@@ -101,9 +119,6 @@ public class Starter extends Application {
         logger.debug("进入" + fxml + ".fxml");
         current_Stage.centerOnScreen();
         current_Stage.show();
-        current_Stage.widthProperty().addListener((obs, oldVal, newVal) -> {
-            User_Controller.stage_Changed(current_Stage.getWidth());
-        });
     }
 
     public static void setRoot(String fxml, String title, int width, int height, int min_Width, int min_Height, int max_Width, int max_Height) throws IOException {
@@ -133,5 +148,21 @@ public class Starter extends Application {
         URL icon_Url = Starter.class.getResource("img/logo.png");
         stage.getIcons().add(new Image(icon_Url.toExternalForm()));
     }
+
+
+    public void Server_Main_App() throws SQLException, ClassNotFoundException {
+
+        SocketServer server = new SocketServer(8888);
+        try {
+            AS_Server.ConnectToDB();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        server.ServerListener();
+
+    }
+
 
 }

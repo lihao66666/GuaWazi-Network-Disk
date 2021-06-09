@@ -1,11 +1,13 @@
 package Server;
 
-import java.sql.SQLException;
+import Server.Show.Starter;
+import javafx.application.Application;
+
 
 public class ServerApp {
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        SocketServer server=new SocketServer(8888);
-        AS_Server.ConnectToDB();
-        server.ServerListener();
+    public static void main(String[] args) {
+        //main启动starter
+        Application.launch(Starter.class);
+
     }
 }
