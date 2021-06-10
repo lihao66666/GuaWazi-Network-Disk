@@ -17,6 +17,7 @@ import javafx.stage.FileChooser;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.net.URL;
 import java.util.*;
@@ -632,17 +633,63 @@ public class User_Controller implements Initializable {
                                     try {
                                         BufferedInputStream in = new BufferedInputStream(new FileInputStream(file_To_Upload));
                                         byte[] bytes = in.readAllBytes();//按字节全部读出
-                                        file_Content = new String(bytes);//转换为string
+                                        //file_Content = Base64.getEncoder().encodeToString(bytes);//转换为string
                                         JSONObject msg_11_data = new JSONObject();
 
                                         msg_11_data.put("filename", file_To_Upload.getName());
-                                        //sig
-
                                         //Key
-                                        String Key = file_To_Upload.getName() + Main.User_ID;
-                                        Key = String.valueOf(Key.hashCode());
-                                        String em = DES_des.Encrypt_Text(file_Content, Key);
-                                        msg_10_Json.put("em",em);
+                                        String content_Key = file_To_Upload.getName() + Main.User_ID;
+                                        content_Key = Integer.toString(content_Key.hashCode());
+                                        byte[] em = DES_des.Encrypt_Text(bytes, content_Key);
+                                        //sig
+                                        String Hash_Code = String.valueOf(Base64.getEncoder().encodeToString(em).hashCode());
+                                        File rsa_file = new File("client-fx/target/" + Main.User_ID + "_RSA_Key.txt");
+                                        FileInputStream rsa_fip = new FileInputStream(rsa_file);
+                                        InputStreamReader rsa_reader = new InputStreamReader(rsa_fip, "UTF-8");
+                                        StringBuffer sb = new StringBuffer();
+                                        while (rsa_reader.ready()) {
+                                            sb.append((char) rsa_reader.read());
+                                        }
+                                        String rsa_String = sb.toString();
+                                        JSONObject rsa_Json = JSON.parseObject(rsa_String);
+                                        String pk_String = rsa_Json.getString("PK");
+                                        String sk_String = rsa_Json.getString("SK");
+                                        JSONObject pk_Json = JSON.parseObject(pk_String);
+                                        JSONObject sk_Json = JSON.parseObject(sk_String);
+                                        BigInteger c_d = new BigInteger(sk_Json.getString("d").getBytes());//私钥
+                                        BigInteger c_n = new BigInteger(sk_Json.getString("n").getBytes());//私钥
+                                        BigInteger c_e = new BigInteger(pk_Json.getString("e").getBytes());//公钥
+                                        String sig_String = RSA.RSA.Encrypt(Hash_Code, c_d, c_n);
+                                        msg_11_data.put("Sig", sig_String);
+                                        msg_11_data.put("Em", Base64.getEncoder().encodeToString(em));
+
+                                        JSONObject msg_11 = new JSONObject();
+                                        msg_11.put("id", 11);
+                                        msg_11.put("IDc", Main.User_ID);
+                                        String en_msg_11_data = DES_des.Encrypt_Text(msg_11_data.toJSONString(), Main.K_C_UP1);
+                                        msg_11.put("data", en_msg_11_data);
+
+                                        rsa_fip.close();
+                                        rsa_reader.close();
+
+                                        pw.write(msg_11 + "\n");
+                                        pw.flush();
+
+                                        //接收消息
+                                        is = socket.getInputStream();
+                                        br = new BufferedReader(new InputStreamReader(is));
+                                        String msg_0 = br.readLine();
+                                        JSONObject msg_0_Json = JSON.parseObject(msg_0);
+                                        if (msg_0_Json.getInteger("id") == 0) {
+                                            if (msg_0_Json.getInteger("status") == 11) {
+                                                logger.error("文件上传失败!");
+                                            } else {
+                                                logger.debug("文件上传成功");
+                                            }
+                                        } else {
+                                            logger.error("上传错误，未知错误");
+                                        }
+                                        upload_List.delete(upload_File_Index);
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                         logger.error("文件打开异常" + e);
@@ -653,40 +700,6 @@ public class User_Controller implements Initializable {
                                     upload_List.delete(upload_File_Index);//删除任务
 
                                 }
-                                //                                JSONObject msg_12_data = new JSONObject();
-//                                msg_12_data.put("filename", filename_To_Download);
-//                                String Origion_msg_12_data = msg_12_data.toJSONString();
-//                                String Encrypt_msg_12_data = DES_des.Encrypt_Text(Origion_msg_12_data, Main.K_C_DOWN1);
-//                                JSONObject msg_12_Json = new JSONObject();
-//                                msg_12_Json.put("id", 12);
-//                                msg_12_Json.put("IDc", Main.User_ID);
-//                                msg_12_Json.put("data", Encrypt_msg_12_data);
-//
-//                                pw.write(msg_12_Json + "\n");
-//                                pw.flush();
-//
-//                                //接收消息
-//                                is = socket.getInputStream();
-//                                br = new BufferedReader(new InputStreamReader(is));
-//                                String server_Message_12 = br.readLine();
-//                                JSONObject msg_12_server_Json = JSON.parseObject(server_Message_12);
-//                                if (msg_12_server_Json.getInteger("id") == 12) {
-//                                    String data_encrypted = msg_12_server_Json.getString("data");
-//                                    String data_decrypted = DES_des.Decrypt_Text(data_encrypted, Main.K_C_DOWN1);
-//                                    JSONObject data_server = JSON.parseObject(data_decrypted);
-//                                    if (data_server.getString("filename").equals(filename_To_Download)) {
-//                                        //TODO 验证sig
-//                                        data_server.getString("Em");//加密之后的文件
-//                                        //TODO 解密文件，写入到磁盘中
-//
-//                                    } else {//返回的文件不一样
-//
-//                                    }
-//                                } else {//没有回复12号报文
-//
-//                                }
-//
-
                             } else {
                                 Thread.sleep(1000);
                             }
@@ -726,7 +739,7 @@ public class User_Controller implements Initializable {
     }
 
 //    @FXML
-//    private void search_Label_Clicked() {
+//    prvate void search_Label_Clicked() {
 //
 //    }
 
@@ -781,7 +794,7 @@ public class User_Controller implements Initializable {
                 PrintWriter pw = null;
                 InputStream is = null;
                 BufferedReader br = null;
-
+                int download_File_Index = download_List.latestFile();
                 try {
                     socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
                     logger.debug("尝试连接服务器");
@@ -821,7 +834,6 @@ public class User_Controller implements Initializable {
 
                             //获取最新的一个文件名
                             //int total_Download_Num = download_List.get_Total();
-                            int download_File_Index = download_List.latestFile();
                             if (download_File_Index != -1) {
                                 String filename_To_Download = download_List.get_File_Name(download_File_Index);
                                 JSONObject msg_12_data = new JSONObject();
@@ -845,19 +857,79 @@ public class User_Controller implements Initializable {
                                     String data_encrypted = msg_12_server_Json.getString("data");
                                     String data_decrypted = DES_des.Decrypt_Text(data_encrypted, Main.K_C_DOWN1);
                                     JSONObject data_server = JSON.parseObject(data_decrypted);
+                                    logger.debug("12号报文data解密成功\t" + data_decrypted);
                                     if (data_server.getString("filename").equals(filename_To_Download)) {
-                                        //TODO 验证sig
-                                        data_server.getString("Em");//加密之后的文件
-                                        //TODO 解密文件，写入到磁盘中
 
+                                        //sig
+                                        //String Hash_Code = String.valueOf(hashCode());
+//                                        File file = new File("client-fx/target/" + Main.User_ID + "_RSA_Key.txt");
+//                                        FileInputStream fip = new FileInputStream(file);
+//                                        InputStreamReader reader = new InputStreamReader(fip, "UTF-8");
+//                                        StringBuffer sb = new StringBuffer();
+//                                        while (reader.ready()) {
+//                                            sb.append((char) reader.read());
+//                                        }
+//                                        String rsa_String = sb.toString();
+//                                        JSONObject rsa_Json = JSON.parseObject(rsa_String);
+//                                        String pk_String = rsa_Json.getString("PK");
+//                                        String sk_String = rsa_Json.getString("SK");
+//                                        JSONObject pk_Json = JSON.parseObject(pk_String);
+//                                        JSONObject sk_Json = JSON.parseObject(sk_String);
+//                                        BigInteger c_d = new BigInteger(sk_Json.getString("d").getBytes());//私钥
+//                                        BigInteger c_n = new BigInteger(sk_Json.getString("n").getBytes());//私钥
+//                                        BigInteger c_e = new BigInteger(pk_Json.getString("e").getBytes());//公钥
+//
+//                                        String Hash_Code_De = RSA.RSA.Decrypt(data_server.getString("Sig"), c_e, c_n);
+//                                        String em = data_server.getString("Em");
+//                                        String Hash_Code = String.valueOf(em.hashCode());
+
+                                        String em = data_server.getString("Em");
+                                        String Hash_Code = String.valueOf(em.hashCode());
+                                        File rsa_file = new File("client-fx/target/" + Main.User_ID + "_RSA_Key.txt");
+                                        FileInputStream rsa_fip = new FileInputStream(rsa_file);
+                                        InputStreamReader rsa_reader = new InputStreamReader(rsa_fip, "UTF-8");
+                                        StringBuffer sb = new StringBuffer();
+                                        while (rsa_reader.ready()) {
+                                            sb.append((char) rsa_reader.read());
+                                        }
+                                        String rsa_String = sb.toString();
+                                        JSONObject rsa_Json = JSON.parseObject(rsa_String);
+                                        String pk_String = rsa_Json.getString("PK");
+                                        String sk_String = rsa_Json.getString("SK");
+                                        JSONObject pk_Json = JSON.parseObject(pk_String);
+                                        JSONObject sk_Json = JSON.parseObject(sk_String);
+                                        BigInteger c_d = new BigInteger(sk_Json.getString("d").getBytes());//私钥
+                                        BigInteger c_n = new BigInteger(sk_Json.getString("n").getBytes());//私钥
+                                        BigInteger c_e = new BigInteger(pk_Json.getString("e").getBytes());//公钥
+                                        String sig_String = RSA.RSA.Encrypt(Hash_Code, c_d, c_n);
+
+                                        rsa_fip.close();
+                                        rsa_reader.close();
+
+                                        if (sig_String.equals(data_server.getString("Sig"))) {
+                                            logger.debug("签名验证成功");
+
+                                            String content_Key = filename_To_Download + Main.User_ID;
+                                            content_Key = Integer.toString(content_Key.hashCode());
+                                            byte[] bytes=Base64.getDecoder().decode(em);
+                                            byte[] origin_File = DES_des.Decrypt_Text(bytes, content_Key);
+                                            logger.debug("em解密成功！");
+                                            File new_File = new File("./我的云盘/" + filename_To_Download);
+                                            rsa_file.createNewFile();//创建文件
+                                            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new_File));
+                                            out.write(origin_File);
+                                            out.flush();
+                                            out.close();
+                                            System.out.println("lllllllllllll");
+                                        } else {
+                                            logger.debug("签名验证失败");
+                                        }
                                     } else {//返回的文件不一样
 
                                     }
                                 } else {//没有回复12号报文
 
                                 }
-
-
                             } else {
                                 Thread.sleep(1000);
                             }
@@ -869,6 +941,8 @@ public class User_Controller implements Initializable {
                     e.printStackTrace();
                 } finally {
                     download_Worker_is_started = false;
+
+                    download_List.delete(download_File_Index);//删除任务
                     Thread.sleep(100);
                     try {
                         if (!(br == null)) {

@@ -60,6 +60,19 @@ public class DES_des {
         return encrypted_Text;
     }
 
+    public static byte[] Encrypt_Text(byte[] text,String Key){
+        logger.info("开始加密");
+        logger.debug("传入明文内容：\t\t" + text);
+        logger.debug("传入密钥内容：\t\t" + Key);
+
+        DES Encrypt = new DES(Key);
+        byte[] encrypted_Text_byte_array = Encrypt.deal(text, 1);
+        logger.info("加密结束");
+        logger.debug("传出密文内容：\t\t" + new String(encrypted_Text_byte_array));
+        return encrypted_Text_byte_array;
+    }
+
+
     /**
      * 对密文进行解密
      *
@@ -78,5 +91,17 @@ public class DES_des {
         logger.info("解密结束");
         logger.debug("传出明文内容：\t\t" + new String(origion_Text));
         return new String(origion_Text);
+    }
+
+    public static byte[] Decrypt_Text(byte[] c,String Key){
+        logger.info("开始解密");
+        logger.debug("传入密文内容：\t\t" + new String(c));
+        logger.debug("解密密钥\t\t密钥为\t" + Key);
+        DES Decrypt = new DES(Key);
+
+        byte[] origion_Text = Decrypt.deal(c, 0);
+        logger.info("解密结束");
+        logger.debug("传出明文内容：\t\t" + new String(origion_Text));
+        return origion_Text;
     }
 }

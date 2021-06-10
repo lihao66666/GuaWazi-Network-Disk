@@ -607,6 +607,7 @@ public class Login_Controller implements Initializable {
         Json_ID_PASSWD.put("password", user_PassWD);
         String origin_ID_PASSWD = Json_ID_PASSWD.toJSONString();
         String encrypt_ID_PASSWD = RSA.Encrypt(origin_ID_PASSWD, e, n);
+
         DES_RSA_Controller.EC_Show_Appendent(false, true, "", "e:\t" + String.valueOf(e) + "\tn:\t" + String.valueOf(n), "unknown", origin_ID_PASSWD, encrypt_ID_PASSWD);
 
         //报文
@@ -678,7 +679,6 @@ public class Login_Controller implements Initializable {
                     default:
                         show_Error_Alerter("登录状态", "其他错误", "其他未知错误，请尝试重启应用程序");
                 }
-
 
             }
         }
