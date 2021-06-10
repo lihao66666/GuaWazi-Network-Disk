@@ -19,15 +19,16 @@ import org.apache.log4j.Logger;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
-import java.util.Date;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class User_Controller implements Initializable {
 
     public static User_Show_All_File_ArrayList all_files_List = new User_Show_All_File_ArrayList();
     public static User_Show_Download_Task_List download_List = new User_Show_Download_Task_List();
+    public static User_Show_Upload_Task_List upload_List = new User_Show_Upload_Task_List();
     private static final Logger logger = Logger.getLogger(User_Controller.class);
+    private Boolean download_Worker_is_started = false;
+    private Boolean upload_Worker_is_started = false;
 
     @FXML
     private Label logo_Label;
@@ -93,7 +94,7 @@ public class User_Controller implements Initializable {
 
 
     @FXML
-    private void file_Button_Clicked() {
+    private void file_Button_Clicked() throws IOException {
         file_Button_Pane_Init();
     }
 
@@ -129,7 +130,7 @@ public class User_Controller implements Initializable {
     }
 
     //文件列表面板更新
-    private void file_Button_Pane_Init() {
+    private void file_Button_Pane_Init() throws IOException {
         //按钮状态设置
         file_Button_Activated = true;
         downloading_Button_Activated = false;
@@ -153,9 +154,39 @@ public class User_Controller implements Initializable {
         delete_Download_Task_IMG_Label.setVisible(false);
         delete_Upload_Task_IMG_Label.setVisible(false);
 
-        update_Files_List();
-        view_Files_List();
-        show_File_ScrollPane.setContent(show_All_File_AnchorPane);
+        int status = update_Files_List();
+        switch (status) {
+            case 0:
+                show_Info_Alerter("文件列表更新状态", "文件列表更新失败", "服务端异常断开连接，请稍后重试");
+                break;
+            case 1:
+                logger.debug("文件列表更新成功！");
+                show_File_ScrollPane.setContent(show_All_File_AnchorPane);
+                break;
+            case 7:
+                show_Info_Alerter("文件列表更新状态", "文件列表更新失败", "登录状态异常，请重新登录！");
+                logger.debug("票据验证失败，定位到login重新登录");
+                // TODO platform.later
+                Starter.setRoot("Login", "登录 | 瓜娃子云盘", 420, 512, 420, 512, 420, 512);
+                break;
+            case 10:
+                show_Info_Alerter("文件列表更新状态", "文件列表更新失败", "服务端异常，请稍后重试");
+                break;
+            case 15:
+                show_Info_Alerter("文件列表更新状态", "文件列表更新失败", "系统错误，请稍后重试");
+                break;
+            case 20:
+                logger.debug("没有文件");
+                show_All_File_AnchorPane = null;
+                show_All_File_AnchorPane = new AnchorPane();
+                show_File_ScrollPane.setContent(show_All_File_AnchorPane);
+
+                break;
+            case 100:
+                show_Info_Alerter("文件列表更新状态", "文件列表更新失败", "未知错误");
+                break;
+        }
+        // TODO platform.later
     }
 
     //显示文件列表，将子面板添加到锚面板中
@@ -197,18 +228,17 @@ public class User_Controller implements Initializable {
         try {
             socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
             logger.debug("尝试连接服务器");
-
             os = socket.getOutputStream();//字节流(二进制)
             pw = new PrintWriter(os);//字符编码
 
             JSONObject message_9_Au_Json = new JSONObject();
             message_9_Au_Json.put("id", 9);
             message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
-
+            Date TS5 = new Date();
             JSONObject au_Origin = new JSONObject();
             au_Origin.put("IDc", Main.User_ID);
             au_Origin.put("ADc", Main.ADc);
-            au_Origin.put("TS5", new Date());
+            au_Origin.put("TS5", TS5);
             String au_Origin_String = au_Origin.toJSONString();
             String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
 
@@ -224,18 +254,70 @@ public class User_Controller implements Initializable {
 
             JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
             if (msg_10_Json.getInteger("id") == 10) {
-                //TODO 验证ACK
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(TS5);
+                calendar.add(calendar.HOUR, 1);
+                Date TS5_TEST = calendar.getTime();
+                String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_DOWN1);
+                if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
+                    logger.debug("下载端身份验证成功！");
 
+                    logger.debug("开始获取文件列表");
+                    JSONObject msg_13_Get_File_List_Json = new JSONObject();
+                    msg_13_Get_File_List_Json.put("id", 13);
+                    msg_13_Get_File_List_Json.put("IDc", Main.User_ID);
+                    String msg_13 = msg_13_Get_File_List_Json.toJSONString();
+                    logger.debug("发送报文" + msg_13);
+                    pw.write(msg_13 + "\n");
+                    pw.flush();
 
+                    //接收消息
+                    is = socket.getInputStream();
+                    br = new BufferedReader(new InputStreamReader(is));
+                    String msg_13_Reply_File_List = br.readLine();
+                    JSONObject msg_13_Reply_Json = JSON.parseObject(msg_13_Reply_File_List);
+                    if (msg_13_Reply_Json.getInteger("id") == 13) {
+                        logger.debug("服务端返回文件列表");
+                        String encrypted_File_Name_List_Json = msg_13_Reply_Json.getString("data");
+                        String decrypted_File_Name_List_Json = DES_des.Decrypt_Text(encrypted_File_Name_List_Json, Main.K_C_DOWN1);
+                        JSONObject msg_13_File_Json = JSON.parseObject(decrypted_File_Name_List_Json);
+                        logger.debug("Json文件列表解密尝试" + decrypted_File_Name_List_Json);
+                        int file_Num = msg_13_File_Json.getInteger("num");
+                        all_files_List = null;
+                        all_files_List = new User_Show_All_File_ArrayList();
+                        if (file_Num != 0) {
+                            //获取文件列表
+                            List<String> file_Name = msg_13_File_Json.getJSONArray("filename").toJavaList(String.class);
+                            for (int i = 0; i < file_Num; i++) {
+                                all_files_List.add_New_File(file_Name.get(i));
+
+                            }
+                            view_Files_List();//显示
+                            return 1;
+                        } else {
+                            logger.debug("没有文件！");
+                            return 20;
+                        }
+                    } else if (msg_13_Reply_Json.getInteger("id") == 0) {
+                        if (msg_13_Reply_Json.getInteger("status") == 15) {
+                            return 15;//系统错误 稍后重试
+                        } else {
+                            return 100;//未知错误
+                        }
+                    }
+                } else {
+                    return 10;//服务端异常
+                }
             } else if (msg_10_Json.getInteger("id") == 0) {
                 if (msg_10_Json.getInteger("status") == 7) {
-                    return 7;//Ticket_Download_Server认证失败
+                    return 7;//Ticket_Download_Server认证失败，重新登录
                 } else {
                     return 100;//未知错误
                 }
             } else {
                 return 100;//未知错误
             }
+            return 100;//未知错误
         } catch (Exception e) {
             logger.error("服务端已经断开连接\n");
             e.printStackTrace();
@@ -474,26 +556,173 @@ public class User_Controller implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("选择需要上传的文件");
         File file = fileChooser.showOpenDialog(Starter.get_Current_Stage());
-        if (file != null) {
-            try {
-                InputStream file_Input = new FileInputStream(file);
-                int size = file_Input.available();
-                //文件打开
-
-                for (int i = 0; i < size; i++) {
-                    System.out.print((char) file_Input.read());
+        upload_List.add_NewFile(file);
+        if (!upload_Worker_is_started) {
+            Runnable upload_Thread_Task = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        upload_Worker();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-                file_Input.close();
-            } catch (IOException e) {
-                show_Error_Alerter("错误", "文件打开错误！", "Exception" + e);
-                logger.error("Exception" + e);
-            }
+            };
+            Thread upload_worker_Thread = new Thread(upload_Thread_Task);
+            upload_worker_Thread.setDaemon(true);
+            upload_worker_Thread.start();
+            upload_Worker_is_started = true;
+            all_files_List.uncheck_All();//取消选中
         }
     }
 
     //上传线程
-    private void uploader() {
+    private void upload_Worker() throws InterruptedException {
+        while (true) {
+            if (upload_List.latestFile() != -1) {
+                Socket socket = null;
+                OutputStream os = null;
+                PrintWriter pw = null;
+                InputStream is = null;
+                BufferedReader br = null;
 
+                try {
+                    socket = new Socket(Main.up_Load_Server_IP, Main.up_Load_Server_Port);
+                    logger.debug("尝试连接服务器");
+                    os = socket.getOutputStream();//字节流(二进制)
+                    pw = new PrintWriter(os);//字符编码
+
+                    JSONObject message_9_Au_Json = new JSONObject();
+                    message_9_Au_Json.put("id", 9);
+                    message_9_Au_Json.put("Ticket_v", Main.ticket_UP1);
+                    Date TS5 = new Date();
+                    JSONObject au_Origin = new JSONObject();
+                    au_Origin.put("IDc", Main.User_ID);
+                    au_Origin.put("ADc", Main.ADc);
+                    au_Origin.put("TS5", TS5);
+                    String au_Origin_String = au_Origin.toJSONString();
+                    String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_UP1);
+
+                    message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
+
+                    pw.write(message_9_Au_Json + "\n");
+                    pw.flush();
+
+                    //接收消息
+                    is = socket.getInputStream();
+                    br = new BufferedReader(new InputStreamReader(is));
+                    String server_Message_10 = br.readLine();
+
+                    JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
+                    if (msg_10_Json.getInteger("id") == 10) {
+                        Calendar calendar = new GregorianCalendar();
+                        calendar.setTime(TS5);
+                        calendar.add(calendar.HOUR, 1);
+                        Date TS5_TEST = calendar.getTime();
+                        String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_UP1);
+                        if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
+                            logger.debug("上传端身份验证成功！");
+
+                            //获取最新的一个文件名
+                            int upload_File_Index = upload_List.latestFile();
+                            if (upload_File_Index != -1) {
+                                File file_To_Upload = upload_List.get_File(upload_File_Index);
+                                if (file_To_Upload.exists()) {
+                                    String file_Content = null;
+                                    try {
+                                        BufferedInputStream in = new BufferedInputStream(new FileInputStream(file_To_Upload));
+                                        byte[] bytes = in.readAllBytes();//按字节全部读出
+                                        file_Content = new String(bytes);//转换为string
+                                        JSONObject msg_11_data = new JSONObject();
+
+                                        msg_11_data.put("filename", file_To_Upload.getName());
+                                        //sig
+
+                                        //Key
+                                        String Key = file_To_Upload.getName() + Main.User_ID;
+                                        Key = String.valueOf(Key.hashCode());
+                                        String em = DES_des.Encrypt_Text(file_Content, Key);
+                                        msg_10_Json.put("em",em);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        logger.error("文件打开异常" + e);
+                                    }
+                                } else {
+                                    //文件不存在，上传失败
+                                    logger.error("文件不存在，上传失败");
+                                    upload_List.delete(upload_File_Index);//删除任务
+
+                                }
+                                //                                JSONObject msg_12_data = new JSONObject();
+//                                msg_12_data.put("filename", filename_To_Download);
+//                                String Origion_msg_12_data = msg_12_data.toJSONString();
+//                                String Encrypt_msg_12_data = DES_des.Encrypt_Text(Origion_msg_12_data, Main.K_C_DOWN1);
+//                                JSONObject msg_12_Json = new JSONObject();
+//                                msg_12_Json.put("id", 12);
+//                                msg_12_Json.put("IDc", Main.User_ID);
+//                                msg_12_Json.put("data", Encrypt_msg_12_data);
+//
+//                                pw.write(msg_12_Json + "\n");
+//                                pw.flush();
+//
+//                                //接收消息
+//                                is = socket.getInputStream();
+//                                br = new BufferedReader(new InputStreamReader(is));
+//                                String server_Message_12 = br.readLine();
+//                                JSONObject msg_12_server_Json = JSON.parseObject(server_Message_12);
+//                                if (msg_12_server_Json.getInteger("id") == 12) {
+//                                    String data_encrypted = msg_12_server_Json.getString("data");
+//                                    String data_decrypted = DES_des.Decrypt_Text(data_encrypted, Main.K_C_DOWN1);
+//                                    JSONObject data_server = JSON.parseObject(data_decrypted);
+//                                    if (data_server.getString("filename").equals(filename_To_Download)) {
+//                                        //TODO 验证sig
+//                                        data_server.getString("Em");//加密之后的文件
+//                                        //TODO 解密文件，写入到磁盘中
+//
+//                                    } else {//返回的文件不一样
+//
+//                                    }
+//                                } else {//没有回复12号报文
+//
+//                                }
+//
+
+                            } else {
+                                Thread.sleep(1000);
+                            }
+
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("服务端已经断开连接\n");
+                    e.printStackTrace();
+                } finally {
+                    download_Worker_is_started = false;
+                    Thread.sleep(100);
+                    try {
+                        if (!(br == null)) {
+                            br.close();
+                        }
+                        if (!(is == null)) {
+                            is.close();
+                        }
+                        if (!(os == null)) {
+                            os.close();
+                        }
+                        if (!(pw == null)) {
+                            pw.close();
+                        }
+                        if (!(socket == null)) {
+                            socket.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                Thread.sleep(1000);
+            }
+        }
     }
 
 //    @FXML
@@ -503,7 +732,7 @@ public class User_Controller implements Initializable {
 
     //更新文件列表
     @FXML
-    private void update_Label_Clicked() {
+    private void update_Label_Clicked() throws IOException {
         //直接全部初始化面板
         file_Button_Pane_Init();
     }
@@ -521,22 +750,274 @@ public class User_Controller implements Initializable {
                 download_List.add_NewFile(all_files_List.get_File_Name(i));
             }
         }
-
+        //线程单独监控
         show_Info_Alerter("开始下载", "下载任务已经开始，正在下载以下文件", download_File_Name);
+
+        //启动下载线程
+        Runnable download_Thread_Task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    download_Worker();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Thread download_worker_Thread = new Thread(download_Thread_Task);
+        download_worker_Thread.setDaemon(true);
+        download_worker_Thread.start();
+        download_Worker_is_started = true;
         download_File_Name = null;
         all_files_List.uncheck_All();//取消选中
-
     }
 
     //下载线程
-    private void downloader() {
+    private void download_Worker() throws InterruptedException {
+        while (true) {
+            if (download_List.latestFile() != -1) {
+                Socket socket = null;
+                OutputStream os = null;
+                PrintWriter pw = null;
+                InputStream is = null;
+                BufferedReader br = null;
 
+                try {
+                    socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
+                    logger.debug("尝试连接服务器");
+                    os = socket.getOutputStream();//字节流(二进制)
+                    pw = new PrintWriter(os);//字符编码
+
+                    JSONObject message_9_Au_Json = new JSONObject();
+                    message_9_Au_Json.put("id", 9);
+                    message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
+                    Date TS5 = new Date();
+                    JSONObject au_Origin = new JSONObject();
+                    au_Origin.put("IDc", Main.User_ID);
+                    au_Origin.put("ADc", Main.ADc);
+                    au_Origin.put("TS5", TS5);
+                    String au_Origin_String = au_Origin.toJSONString();
+                    String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
+
+                    message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
+
+                    pw.write(message_9_Au_Json + "\n");
+                    pw.flush();
+
+                    //接收消息
+                    is = socket.getInputStream();
+                    br = new BufferedReader(new InputStreamReader(is));
+                    String server_Message_10 = br.readLine();
+
+                    JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
+                    if (msg_10_Json.getInteger("id") == 10) {
+                        Calendar calendar = new GregorianCalendar();
+                        calendar.setTime(TS5);
+                        calendar.add(calendar.HOUR, 1);
+                        Date TS5_TEST = calendar.getTime();
+                        String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_DOWN1);
+                        if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
+                            logger.debug("下载端身份验证成功！");
+
+                            //获取最新的一个文件名
+                            //int total_Download_Num = download_List.get_Total();
+                            int download_File_Index = download_List.latestFile();
+                            if (download_File_Index != -1) {
+                                String filename_To_Download = download_List.get_File_Name(download_File_Index);
+                                JSONObject msg_12_data = new JSONObject();
+                                msg_12_data.put("filename", filename_To_Download);
+                                String Origion_msg_12_data = msg_12_data.toJSONString();
+                                String Encrypt_msg_12_data = DES_des.Encrypt_Text(Origion_msg_12_data, Main.K_C_DOWN1);
+                                JSONObject msg_12_Json = new JSONObject();
+                                msg_12_Json.put("id", 12);
+                                msg_12_Json.put("IDc", Main.User_ID);
+                                msg_12_Json.put("data", Encrypt_msg_12_data);
+
+                                pw.write(msg_12_Json + "\n");
+                                pw.flush();
+
+                                //接收消息
+                                is = socket.getInputStream();
+                                br = new BufferedReader(new InputStreamReader(is));
+                                String server_Message_12 = br.readLine();
+                                JSONObject msg_12_server_Json = JSON.parseObject(server_Message_12);
+                                if (msg_12_server_Json.getInteger("id") == 12) {
+                                    String data_encrypted = msg_12_server_Json.getString("data");
+                                    String data_decrypted = DES_des.Decrypt_Text(data_encrypted, Main.K_C_DOWN1);
+                                    JSONObject data_server = JSON.parseObject(data_decrypted);
+                                    if (data_server.getString("filename").equals(filename_To_Download)) {
+                                        //TODO 验证sig
+                                        data_server.getString("Em");//加密之后的文件
+                                        //TODO 解密文件，写入到磁盘中
+
+                                    } else {//返回的文件不一样
+
+                                    }
+                                } else {//没有回复12号报文
+
+                                }
+
+
+                            } else {
+                                Thread.sleep(1000);
+                            }
+
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("服务端已经断开连接\n");
+                    e.printStackTrace();
+                } finally {
+                    download_Worker_is_started = false;
+                    Thread.sleep(100);
+                    try {
+                        if (!(br == null)) {
+                            br.close();
+                        }
+                        if (!(is == null)) {
+                            is.close();
+                        }
+                        if (!(os == null)) {
+                            os.close();
+                        }
+                        if (!(pw == null)) {
+                            pw.close();
+                        }
+                        if (!(socket == null)) {
+                            socket.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                Thread.sleep(1000);
+            }
+        }
     }
+
 
     //删除云盘中的文件
     @FXML
-    private void delete_File_Label_Clicked() {
+    private void delete_File_Label_Clicked() throws IOException {
+        int t = all_files_List.get_Total();
+        logger.debug("delete Clicked!");
+        List<String> delete_filename_List = new ArrayList<>();
+        String delete_File_Name = "";
+        for (int i = 0; i < t; i++) {
+            if (all_files_List.child_Pane.get(i).is_Checked) {
+                delete_File_Name = all_files_List.get_File_Name(i);
+                logger.debug("Download file: " + all_files_List.get_File_Name(i));
+                delete_filename_List.add(delete_File_Name);//将需要删除的文件放进队列中
+            }
+        }
 
+        //创建连接
+        Socket socket = null;
+        OutputStream os = null;
+        PrintWriter pw = null;
+        InputStream is = null;
+        BufferedReader br = null;
+
+        try {
+            socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
+            logger.debug("尝试连接服务器");
+            os = socket.getOutputStream();//字节流(二进制)
+            pw = new PrintWriter(os);//字符编码
+
+            JSONObject message_9_Au_Json = new JSONObject();
+            message_9_Au_Json.put("id", 9);
+            message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
+            Date TS5 = new Date();
+            JSONObject au_Origin = new JSONObject();
+            au_Origin.put("IDc", Main.User_ID);
+            au_Origin.put("ADc", Main.ADc);
+            au_Origin.put("TS5", TS5);
+            String au_Origin_String = au_Origin.toJSONString();
+            String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
+
+            message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
+
+            pw.write(message_9_Au_Json + "\n");
+            pw.flush();
+
+            //接收消息
+            is = socket.getInputStream();
+            br = new BufferedReader(new InputStreamReader(is));
+            String server_Message_10 = br.readLine();
+
+            JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
+            if (msg_10_Json.getInteger("id") == 10) {
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(TS5);
+                calendar.add(calendar.HOUR, 1);
+                Date TS5_TEST = calendar.getTime();
+                String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_DOWN1);
+                if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
+                    logger.debug("下载端身份验证成功！");
+                    JSONObject msg_14_data_Json = new JSONObject();
+                    msg_14_data_Json.put("num", delete_filename_List.size());
+                    msg_14_data_Json.put("filename", delete_filename_List);
+                    //进行des加密
+                    String msg_14_data_encrypted = DES_des.Encrypt_Text(msg_14_data_Json.toJSONString(), Main.K_C_DOWN1);
+
+                    JSONObject msg_14_Json = new JSONObject();
+                    msg_14_Json.put("id", 14);
+                    msg_14_Json.put("IDc", Main.User_ID);
+                    msg_14_Json.put("data", msg_14_data_encrypted);
+
+                    pw.write(msg_14_Json + "\n");
+                    pw.flush();
+
+                    //接收消息
+                    is = socket.getInputStream();
+                    br = new BufferedReader(new InputStreamReader(is));
+                    String server_Message_0 = br.readLine();
+                    JSONObject msg_0_Status = JSON.parseObject(server_Message_0);
+                    if (msg_0_Status.getInteger("id") == 0) {
+                        if (msg_0_Status.getInteger("status") == 13) {
+                            show_Error_Alerter("删除状态", "文件删除失败", "可能有部分文件删除失败，请重试！");
+                        } else if (msg_0_Status.getInteger("status") == 12) {
+                            show_Info_Alerter("删除状态", "文件删除成功", "文件已经成功删除！");
+                        } else {
+                            show_Error_Alerter("删除状态", "未知错误", "出现未知错误，请重试！");
+                        }
+                    } else {//收到的不是状态码，失败
+                        show_Error_Alerter("删除状态", "未知错误", "出现未知错误，请重试！");
+                    }
+                }
+            } else {
+                show_Error_Alerter("删除状态", "删除失败", "身份验证失败，请重新登录！");
+                Starter.setRoot("Login", "登录 | 瓜娃子云盘", 420, 512, 420, 512, 420, 512);
+            }
+        } catch (Exception e) {
+            logger.error("服务端已经断开连接\n");
+            e.printStackTrace();
+            show_Error_Alerter("删除状态", "未知错误", "服务器异常断开连接！请重试");
+        } finally {
+            try {
+                if (!(br == null)) {
+                    br.close();
+                }
+                if (!(is == null)) {
+                    is.close();
+                }
+                if (!(os == null)) {
+                    os.close();
+                }
+                if (!(pw == null)) {
+                    pw.close();
+                }
+                if (!(socket == null)) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                file_Button_Pane_Init();
+                logger.debug("刷新文件列表");
+            }
+        }
     }
 
 
@@ -569,7 +1050,11 @@ public class User_Controller implements Initializable {
         delete_Upload_Task_IMG_Label.setGraphic(set_User_Img("delete_Upload_Task_IMG_Label"));
 
         //加载文件场景
-        file_Button_Pane_Init();
+        try {
+            file_Button_Pane_Init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //加载图片

@@ -142,7 +142,7 @@ public class DownloadServer {
             return null;
         }
         JSONObject newmsg = new JSONObject();
-        newmsg.put("id", 12);
+        newmsg.put("id", 13);
         newmsg.put("IDc", this.Client_ID);
         JSONObject newData = new JSONObject();
         File file = new File("./云盘/" + this.Client_ID + File.separator);
