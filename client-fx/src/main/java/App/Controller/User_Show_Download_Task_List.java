@@ -8,6 +8,7 @@ public class User_Show_Download_Task_List {
     public ArrayList<Boolean> is_NULL;
     public ArrayList<Boolean> is_Paused;
     public ArrayList<Boolean> is_In_Error;
+    public ArrayList<Boolean> is_Complete;
     private int total;
 
     public User_Show_Download_Task_List() {
@@ -16,6 +17,7 @@ public class User_Show_Download_Task_List {
         is_NULL = new ArrayList<>();
         is_Paused = new ArrayList<>();
         is_In_Error = new ArrayList<>();
+        is_Complete = new ArrayList<>();
         total = 0;
     }
 
@@ -30,6 +32,7 @@ public class User_Show_Download_Task_List {
             this.is_NULL.add(false);
             this.is_Paused.add(false);
             this.is_In_Error.add(false);
+            this.is_Complete.add(false);
             total++;
         }
     }
@@ -56,11 +59,13 @@ public class User_Show_Download_Task_List {
     //获取一个未下载的文件
     public int latestFile() {
         for (int i = 0; i < total; i++) {
-            if (is_NULL.get(i) == false) {//任务存在
-                if (is_Paused.get(i) == false) {//没有暂停
-                    if (is_In_Error.get(i) == false) {//没有错误
-                        if (child_Pane.get(i).is_Downloading == false) {//正在下载
-                            return i;//第一个未下载的
+            if (!is_NULL.get(i)) {//任务存在
+                if (!is_Paused.get(i)) {//没有暂停
+                    if (!is_In_Error.get(i)) {//没有错误
+                        if (!child_Pane.get(i).is_Downloading) {//正在下载
+                            if (!is_Complete.get(i)) {
+                                return i;//第一个未下载的
+                            }
                         }
                     }
                 }
@@ -80,30 +85,43 @@ public class User_Show_Download_Task_List {
         is_In_Error = new ArrayList<>();
         is_Paused = null;
         is_Paused = new ArrayList<>();
+        is_Complete = null;
+        is_Complete = new ArrayList<>();
     }
 
     public void show_Downloading(int index) {
         this.is_In_Error.set(index, false);
         this.is_Paused.set(index, false);
+        this.is_Complete.set(index,false);
         this.child_Pane.get(index).show_Downloading();
     }
 
     public void show_Error_Downloading(int index) {
         this.is_In_Error.set(index, true);
         this.is_Paused.set(index, false);
+        this.is_Complete.set(index,false);
         this.child_Pane.get(index).show_Error_Downloading();
     }
 
     public void show_Pause(int index) {
         this.is_In_Error.set(index, false);
         this.is_Paused.set(index, true);
+        this.is_Complete.set(index,false);
         this.child_Pane.get(index).show_Pause();
     }
 
     public void show_Restart(int index) {
         this.is_In_Error.set(index, false);
         this.is_Paused.set(index, false);
+        this.is_Complete.set(index,false);
         this.child_Pane.get(index).show_Restart();
+    }
+
+    public void show_Complete(int index) {
+        this.is_In_Error.set(index, false);
+        this.is_Paused.set(index, false);
+        this.is_Complete.set(index,true);
+        this.child_Pane.get(index).show_Complete();
     }
 
     public void delete(int index) {

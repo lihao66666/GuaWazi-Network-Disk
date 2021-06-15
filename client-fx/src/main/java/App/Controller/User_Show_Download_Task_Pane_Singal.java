@@ -134,5 +134,14 @@ public class User_Show_Download_Task_Pane_Singal {
             }
         });
     }
+    public void show_Complete(){
+        this.is_Downloading = false;
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("已下载");
+            }
+        });
+    }
 
 }
