@@ -4,16 +4,16 @@ import javafx.application.Application;
 
 public class Main {
 
-    public static int AS_Port = 8888;
+    public static int AS_Port = 18000;
     public static String AS_IP = "localhost";
 
-    public static int TGS_Port = 8889;
+    public static int TGS_Port = 18001;
     public static String TGS_IP = "localhost";
 
-    public static int up_Load_Server_Port = 8890;
+    public static int up_Load_Server_Port = 18002;
     public static String up_Load_Server_IP = "localhost";
 
-    public static int down_Load_Server_Port = 8891;
+    public static int down_Load_Server_Port = 18003;
     public static String down_Load_Server_IP = "localhost";
 
     public static String TGS_ID = "TGS1";

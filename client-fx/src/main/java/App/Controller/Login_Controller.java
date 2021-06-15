@@ -192,7 +192,6 @@ public class Login_Controller implements Initializable {
                     String CA = msg.getString("CA");//获取客户端证书
                     String DecryptedCA = RSA.Decrypt(CA, KDC_d, KDC_n);//证书使用KDC私钥解密
                     logger.debug("解密结果=" + DecryptedCA);
-                    DES_RSA_Controller.EC_Show_Appendent(false, false, "", "unknown", KDC_d.toString() + KDC_n.toString(), DecryptedCA, CA);
 
                     //获取json具体内容
                     JSONObject ca = JSON.parseObject(DecryptedCA);//将解密的结果转换为一个Json对象
@@ -446,7 +445,6 @@ public class Login_Controller implements Initializable {
                     String DecryptedCA = RSA.Decrypt(CA, KDC_d, KDC_n);//证书使用KDC私钥解密
                     logger.debug("解密结果=" + DecryptedCA);
 
-                    DES_RSA_Controller.EC_Show_Appendent(false, false, "", "unknown", KDC_d.toString() + KDC_n.toString(), DecryptedCA, CA);
 
                     //获取json具体内容
                     JSONObject ca = JSON.parseObject(DecryptedCA);//将解密的结果转换为一个Json对象
@@ -608,7 +606,6 @@ public class Login_Controller implements Initializable {
         String origin_ID_PASSWD = Json_ID_PASSWD.toJSONString();
         String encrypt_ID_PASSWD = RSA.Encrypt(origin_ID_PASSWD, e, n);
 
-        DES_RSA_Controller.EC_Show_Appendent(false, true, "", "e:\t" + String.valueOf(e) + "\tn:\t" + String.valueOf(n), "unknown", origin_ID_PASSWD, encrypt_ID_PASSWD);
 
         //报文
         JSONObject json_Message_3 = new JSONObject();
@@ -649,8 +646,8 @@ public class Login_Controller implements Initializable {
                         Main.User_ID = ID;
                         logger.debug("与UP1的通信密钥：" + Main.K_C_UP1);
                         logger.debug("与DOWN1的通信密钥：" + Main.K_C_DOWN1);
+                        Starter.setRoot("User", "瓜娃子云盘", 1280, 800, 980, 600);//先进入再弹窗阻塞
                         show_Info_Alerter("登录状态", "登录成功", "正在进入云盘");
-                        Starter.setRoot("User", "瓜娃子云盘", 1280, 800, 980, 600);
                         break;
                     case 2:
                         show_Error_Alerter("登录状态", "RSA加密IO错误", "请重试");

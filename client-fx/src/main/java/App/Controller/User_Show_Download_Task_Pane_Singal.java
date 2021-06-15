@@ -1,5 +1,6 @@
 package App.Controller;
 
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -93,21 +94,45 @@ public class User_Show_Download_Task_Pane_Singal {
         check_Box.setGraphic(unchecked_Image);
     }
 
-    public void set_is_Downloading() {
+
+    public void show_Downloading(){
         this.is_Downloading = true;
-        status_Label.setText("下载中");
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("下载中");
+            }
+        });
     }
 
-//    public void clear() {
-//        pane = null;
-//        is_Checked = null;
-//        is_Downloading = null;
-//        check_Box = null;
-//        file_Name_Label = null;
-//        status_Label = null;
-//        separator = null;
-//        checked_Image = null;
-//        unchecked_Image = null;
-//    }
+    public void show_Error_Downloading(){
+        this.is_Downloading = false;
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("出错了");
+            }
+        });
+    }
+
+    public void show_Pause(){
+        this.is_Downloading = false;
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("暂停中");
+            }
+        });
+    }
+
+    public void show_Restart(){
+        this.is_Downloading = false;
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("等待中");
+            }
+        });
+    }
 
 }
