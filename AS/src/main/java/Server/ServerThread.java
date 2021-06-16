@@ -112,8 +112,8 @@ public class ServerThread extends Thread {
             }
         } catch (Exception e) {
             // TODO: handle exception
-            System.out.println("客户端断开连接");
-            //e.printStackTrace();
+           logger.error("客户端断开连接");
+            e.printStackTrace();
         } finally {
             //关闭资源
             try {
