@@ -928,9 +928,17 @@ public class User_Controller implements Initializable {
                                         byte[] encrypted_File_Bytes = DES_des.Encrypt_Text(decrypted_File_Bytes, content_Key);
                                         String encrypted_File_String = new String(encrypted_File_Bytes);
                                         String decrypted_File_String = new String(decrypted_File_Bytes);
-                                        encrypted_File_String = encrypted_File_String.replace("\n", "").replace("\r", "").substring(0, 500);
-                                        decrypted_File_String = decrypted_File_String.replace("\n", "").replace("\r", "").substring(0, 500);
-                                        DES_RSA_Controller.EC_Show_Appendent(true, true, String.valueOf(content_Key), "", "", decrypted_File_String, encrypted_File_String);
+                                        encrypted_File_String = encrypted_File_String.replace("\n", "").replace("\r", "");
+                                        String encrypted_File_String_show = encrypted_File_String;
+                                        if (encrypted_File_String_show.length() > 500) {
+                                            encrypted_File_String_show = encrypted_File_String_show.substring(0, 499);
+                                        }
+                                        decrypted_File_String = decrypted_File_String.replace("\n", "").replace("\r", "");
+                                        String decrypted_File_String_show = decrypted_File_String;
+                                        if (decrypted_File_String_show.length() > 500) {
+                                            decrypted_File_String_show = decrypted_File_String_show.substring(0, 499);
+                                        }
+                                        DES_RSA_Controller.EC_Show_Appendent(true, true, String.valueOf(content_Key), "", "", decrypted_File_String_show, encrypted_File_String_show);
                                         //sig
                                         String Hash_Code = String.valueOf(Base64.getEncoder().encodeToString(encrypted_File_Bytes).hashCode());
                                         File rsa_file = new File("client-fx/target/" + Main.User_ID + "_RSA_Key.txt");
@@ -958,7 +966,17 @@ public class User_Controller implements Initializable {
                                         msg_11.put("id", 11);
                                         msg_11.put("IDc", Main.User_ID);
                                         String en_msg_11_data = DES_des.Encrypt_Text(msg_11_data.toJSONString(), Main.K_C_UP1);
-                                        DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_UP1, "", "", msg_11_data.toJSONString().substring(0, 500), en_msg_11_data.substring(0, 500));
+                                        String msg_11_show_data = msg_11_data.toJSONString();
+                                        String en_msg_11_show_data = en_msg_11_data;
+                                        String msg_11_show_data_show = msg_11_show_data;
+                                        if (msg_11_show_data_show.length() > 500) {
+                                            msg_11_show_data_show = msg_11_show_data_show.substring(0, 499);
+                                        }
+                                        String en_msg_11_show_data_show = en_msg_11_show_data;
+                                        if (en_msg_11_show_data_show.length() > 500) {
+                                            en_msg_11_show_data_show = en_msg_11_show_data_show.substring(0, 499);
+                                        }
+                                        DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_UP1, "", "", msg_11_show_data_show, en_msg_11_show_data_show);
                                         msg_11.put("data", en_msg_11_data);
 
                                         rsa_fip.close();
@@ -972,7 +990,7 @@ public class User_Controller implements Initializable {
                                         br = new BufferedReader(new InputStreamReader(is));
                                         String msg_0 = br.readLine();
                                         //心跳包
-                                        if (msg_0.toString() == null) {//数据异常判断客户端是否关闭
+                                        if (msg_0 == null) {//数据异常判断客户端是否关闭
                                             socket.sendUrgentData(0xFF);//抛出异常
                                         }
                                         JSONObject msg_0_Json = JSON.parseObject(msg_0);
@@ -1179,7 +1197,15 @@ public class User_Controller implements Initializable {
                                 if (msg_12_server_Json.getInteger("id") == 12) {//服务器是否返回12号文件报文
                                     String data_encrypted = msg_12_server_Json.getString("data");
                                     String data_decrypted = DES_des.Decrypt_Text(data_encrypted, Main.K_C_DOWN1);
-                                    DES_RSA_Controller.EC_Show_Appendent(true, false, Main.K_C_DOWN1, "", "", data_decrypted.substring(0, 500), data_encrypted.substring(0, 500));
+                                    String data_decrypted_show  = data_decrypted;
+                                    if (data_decrypted_show.length() > 500) {
+                                        data_decrypted_show = data_decrypted_show.substring(0, 499);
+                                    }
+                                    String data_encrypted_show = data_encrypted;
+                                    if (data_encrypted_show.length() > 500) {
+                                        data_encrypted_show = data_encrypted_show.substring(0, 499);
+                                    }
+                                    DES_RSA_Controller.EC_Show_Appendent(true, false, Main.K_C_DOWN1, "", "", data_decrypted_show, data_encrypted_show);
 
                                     JSONObject data_server = JSON.parseObject(data_decrypted);
                                     logger.debug("12号报文data解密成功\t" + data_decrypted);
@@ -1215,9 +1241,17 @@ public class User_Controller implements Initializable {
                                             byte[] decrypted_File_Bytes = DES_des.Decrypt_Text(encrypted_File_Bytes, content_Key);
                                             String encrypted_File_String = new String(encrypted_File_Bytes);
                                             String decrypted_File_String = new String(decrypted_File_Bytes);
-                                            encrypted_File_String = encrypted_File_String.replace("\n", "").replace("\r", "").substring(0, 500);
-                                            decrypted_File_String = decrypted_File_String.replace("\n", "").replace("\r", "").substring(0, 500);
-                                            DES_RSA_Controller.EC_Show_Appendent(true, false, content_Key, "", "", decrypted_File_String, encrypted_File_String);
+                                            encrypted_File_String = encrypted_File_String.replace("\n", "").replace("\r", "");
+                                            decrypted_File_String = decrypted_File_String.replace("\n", "").replace("\r", "");
+                                            String encrypted_File_String_show = encrypted_File_String;
+                                            if (encrypted_File_String_show.length() > 500) {
+                                                encrypted_File_String_show = encrypted_File_String_show.substring(0, 499);
+                                            }
+                                            String decrypted_File_String_show = decrypted_File_String;
+                                            if (decrypted_File_String_show.length() > 500) {
+                                                decrypted_File_String_show = decrypted_File_String_show.substring(0, 499);
+                                            }
+                                            DES_RSA_Controller.EC_Show_Appendent(true, false, content_Key, "", "", decrypted_File_String_show, encrypted_File_String_show);
 
                                             logger.debug("em解密成功！");
                                             File new_File = new File("./我的云盘/" + filename_To_Download);
