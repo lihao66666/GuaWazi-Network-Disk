@@ -131,9 +131,7 @@ public class ServerThread extends Thread {
                     is.close();
                 if (socket != null)
                     socket.close();
-                if(server.conn!=null)
-                    server.conn.close();
-            } catch (IOException | SQLException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

@@ -16,10 +16,9 @@ import java.util.GregorianCalendar;
 import RSA.RSA;
 
 public class AS_Server {
-    private static final String URL = "jdbc:mysql://47.117.190.99:3306/gwz_db";//连接到的数据库
+    private static final String URL = "jdbc:mysql://47.117.190.99:3306/gwz_db?autoReconnect=true";//连接到的数据库
     private static final String NAME = "GWZ_DB";//用户名
     private static final String PASSWORD = "3hfYLRaCmyfKMWEH";//密码
-    public static Connection conn = null;
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AS_Server.class);
     static final String Server_ID = "AS1";//服务器的ID(固定)
@@ -41,19 +40,20 @@ public class AS_Server {
         this.Client_AD = Client_AD;//处理该地址的server
     }
 
-    public static Boolean ConnectToDB() throws ClassNotFoundException, SQLException {//连接到数据库，保存连接句柄
+    public Connection ConnectToDB() throws ClassNotFoundException, SQLException {//连接到数据库，保存连接句柄
+        Connection conn;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(URL, NAME, PASSWORD);
             System.out.println("Database connection established");
             if (conn == null) {
                 logger.error("连接数据库失败");
-                return false;
+                return null;
             }
-            return true;
+            return conn;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return false;
+            return null;
         }
     }
 
@@ -176,21 +176,30 @@ public class AS_Server {
         String user_id = id_pass_Json.getString("user_ID");//获取用户ID
         String password = id_pass_Json.getString("password");//获取用户密码
         logger.debug(user_id+password);
-        if(conn.isClosed())ConnectToDB();
+        Connection conn=ConnectToDB();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery("select `User_ID` from `User`");//从数据库中获取所有用户ID
         while (rs.next()) {//如果对象中有数据，就会循环打印出来
-            logger.debug(rs.getString("User_ID"));
+            //logger.debug(rs.getString("User_ID"));
             if (rs.getString("User_ID").equals(user_id)) {//判断该ID是否已经存在数据库中
                 logger.error("该账户已存在");
+                rs.close();
+                stmt.close();
+                conn.close();
                 return 17;//返回状态码17，该账户已经注册
             }
         }
         if (stmt.executeUpdate("INSERT INTO `User` ( `User_ID`,`User_PassWord` ) VALUES ( \'" + user_id + "\',\'" + password + "\')") > 0) {//如果该账户没有注册，则注册该账户进数据库
             logger.debug("注册成功");
+            rs.close();
+            stmt.close();
+            conn.close();
             return 0;//写入成功，返回注册成功状态码
         } else {
             logger.error("注册失败");
+            rs.close();
+            stmt.close();
+            conn.close();
             return 1;//写入失败，返回注册失败状态码
         }
     }
@@ -222,9 +231,7 @@ public class AS_Server {
         String password = loginData.getString("password");//获取用户密码
         logger.debug("User_ID====" + user_id);
         logger.debug("password=====" + password);
-        if(conn.isClosed()) {
-            ConnectToDB();
-        }
+        Connection conn=ConnectToDB();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery("select * from `User`");//从数据库中获取所有的用户名和密码
         while (rs.next()) {//如果对象中有数据，就会循环打印出来
@@ -232,9 +239,15 @@ public class AS_Server {
                 logger.debug("找到对应用户ID");
                 if (rs.getString("User_PassWord").equals(password)) {//判断密码是否一致
                     logger.debug("登录成功");
+                    rs.close();
+                    stmt.close();
+                    conn.close();
                     return 4;//密码一致，登录成功
                 } else {
                     logger.error("密码不一致，登录失败");
+                    rs.close();
+                    stmt.close();
+                    conn.close();
                     return 3;//密码不一致，返回登录失败
                 }
             }
@@ -243,8 +256,9 @@ public class AS_Server {
         return 2;
     }
 
-    public Boolean VerifyRequestOfTicket(String message) throws SQLException {//验证请求TGS的请求是否正确
+    public Boolean VerifyRequestOfTicket(String message) throws SQLException, ClassNotFoundException {//验证请求TGS的请求是否正确
         logger.debug("验证请求TGS的请求是否正确");
+        Connection conn=ConnectToDB();
         Statement stmt = conn.createStatement();
         JSONObject request = JSON.parseObject(message);
         String TGS_ID = request.getString("IDtgs");
@@ -253,16 +267,21 @@ public class AS_Server {
         while (rs.next()) {
             if (rs.getString("Server_ID").equals(TGS_ID)) {
                 logger.debug("请求的TGS在数据库中");
+                rs.close();
+                stmt.close();
+                conn.close();
                 return true;
             }
         }
-
         logger.error("请求的TGS不在数据库中");
+        rs.close();
+        stmt.close();
+        conn.close();
         return false;
 
     }
 
-    public String GenerateTicketMessage(String message) throws SQLException {
+    public String GenerateTicketMessage(String message) throws SQLException, ClassNotFoundException {
         logger.debug("生成票据报文");
         JSONObject request = JSON.parseObject(message);
         String IDc = request.getString("user_ID");
@@ -285,6 +304,7 @@ public class AS_Server {
         //1622732441561  1622732548079  1622732671050
         Ticket_tgs.put("Lifetime2", LifeTime2);
         logger.debug("123123");
+        Connection conn=ConnectToDB();
         Statement stmt = conn.createStatement();
         String Ktgs = null;
         ResultSet rs = stmt.executeQuery("select * from `Key_AS-TGS`");//从数据库中获取所有用户ID
@@ -295,6 +315,9 @@ public class AS_Server {
 
             }
         }
+        rs.close();
+        stmt.close();
+        conn.close();
         logger.debug("tck=====" + Ticket_tgs.toJSONString());
         String Ticket = DES.DES_des.Encrypt_Text(Ticket_tgs.toJSONString(),Ktgs);
         logger.debug("加密后的TGS—ticket=====" + Ticket);

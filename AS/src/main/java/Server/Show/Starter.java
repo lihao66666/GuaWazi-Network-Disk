@@ -122,13 +122,6 @@ public class Starter extends Application {
     public void Server_Main_App() throws SQLException, ClassNotFoundException {
 
         SocketServer server = new SocketServer(18000);
-        try {
-            AS_Server.ConnectToDB();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
         server.ServerListener();
 
     }
