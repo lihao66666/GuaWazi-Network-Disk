@@ -49,7 +49,7 @@ public class ServerThread extends Thread {
                 switch (id) {
                     case 9://证书
                     {
-                        if (server.check_CA(info) == false) {//证书校验失败
+                        if (server.check_Authencator(info) == false) {//证书校验失败
                             String msg = server.status_message(7);//应用服务器认证失败
                             pw.write(msg + "\n");//发送
                             pw.flush();
@@ -59,7 +59,7 @@ public class ServerThread extends Thread {
                             throw new Exception();
                         } else {
                             server.creat_NetDisk();//创建云盘
-                            String msg = server.return_CA();//回传认证
+                            String msg = server.return_Authencator();//回传认证
                             pw.write(msg + "\n");//发送
                             pw.flush();
                             logger.error("应用服务器认证成功");

@@ -50,7 +50,7 @@ public class ServerThread extends Thread {
                     case 9://证书
                     {
                         logger.debug("case 9");
-                        if (server.check_CA(info) == false) {//证书校验失败
+                        if (server.check_Authencator(info) == false) {//证书校验失败
                             logger.debug("case 9 证书校验失败");
 
                             String msg = server.status_message(7);//应用服务器认证失败
@@ -64,7 +64,7 @@ public class ServerThread extends Thread {
                             logger.debug("case 9 证书校验成功");
 
                             server.creat_NetDisk();//创建云盘
-                            String msg = server.return_CA();//回传认证
+                            String msg = server.return_Authencator();//回传认证
                             pw.write(msg + "\n");//发送
                             pw.flush();
                             logger.info("应用服务器认证成功");
