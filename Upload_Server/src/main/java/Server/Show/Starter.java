@@ -119,7 +119,7 @@ public class Starter extends Application {
 
 
     public void Server_Main_App() throws SQLException, ClassNotFoundException {
-        SocketServer server=new SocketServer(8890);
+        SocketServer server=new SocketServer(18000);
         server.ServerListener();
 
     }

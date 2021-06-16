@@ -36,9 +36,9 @@ public class ServerThread extends Thread{
                 os = socket.getOutputStream();
                 pw = new PrintWriter(os);
                 Scanner input=new Scanner(System.in);
-                System.out.println("服务端输入：");
+                //System.out.println("服务端输入：");
                 String str=input.next();
-                pw.write(str+"\n");
+                pw.write("你好\n");
                 pw.flush();
               //  socket.shutdownOutput();
             }

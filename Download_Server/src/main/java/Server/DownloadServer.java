@@ -67,7 +67,7 @@ public class DownloadServer {
     }
 
     public void creat_NetDisk() {
-        File file = new File("./云盘/" + this.Client_ID + File.separator);
+        File file = new File("/home/lemon/Desktop/NetDisk/" + this.Client_ID + File.separator);
         if (file.exists() == false)
             file.mkdir();
     }
@@ -108,7 +108,7 @@ public class DownloadServer {
         JSONObject data = JSON.parseObject(Data);
 
         String filename = data.getString("filename");
-        File file = new File("./云盘/" + this.Client_ID + File.separator + filename);
+        File file = new File("/home/lemon/Desktop/NetDisk/" + this.Client_ID + File.separator + filename);
         String str = null;
         try {
             BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
@@ -145,7 +145,7 @@ public class DownloadServer {
         newmsg.put("id", 13);
         newmsg.put("IDc", this.Client_ID);
         JSONObject newData = new JSONObject();
-        File file = new File("./云盘/" + this.Client_ID + File.separator);
+        File file = new File("/home/lemon/Desktop/NetDisk/" + this.Client_ID + File.separator);
         if (file.exists() == false) {
             logger.error("系统错误");
             return null;
@@ -177,12 +177,12 @@ public class DownloadServer {
         //获取文件列表
         List<String> filename = data.getJSONArray("filename").toJavaList(String.class);
         for (String f : filename) {
-            File file = new File("./云盘/" + this.Client_ID + File.separator + f);
+            File file = new File("/home/lemon/Desktop/NetDisk/" + this.Client_ID + File.separator + f);
             if (file.delete() == false) {
                 logger.error("系统错误");
                 return false;
             }
-            logger.error("./云盘/" + this.Client_ID + File.separator + f + "删除成功");
+            logger.error("/home/lemon/Desktop/NetDisk/" + this.Client_ID + File.separator + f + "删除成功");
         }
         return true;
     }

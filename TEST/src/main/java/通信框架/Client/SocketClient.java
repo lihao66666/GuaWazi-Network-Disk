@@ -13,7 +13,7 @@ public class SocketClient {
         BufferedReader br=null;
         try {
             // 和服务器创建连接
-            socket = new Socket("localhost",8888);
+            socket = new Socket("192.168.49.45",8888);
             System.out.println("客户端已启动\n");
             // 要发送给服务器的信息
             while(true){

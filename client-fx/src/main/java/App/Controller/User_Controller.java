@@ -1,6 +1,6 @@
 package App.Controller;
 
-import App.Main;
+import App.ClientApp;
 import App.Starter;
 import DES.DES_des;
 import com.alibaba.fastjson.JSON;
@@ -257,22 +257,22 @@ public class User_Controller implements Initializable {
         BufferedReader br = null;
 
         try {
-            socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
+            socket = new Socket(ClientApp.down_Load_Server_IP, ClientApp.down_Load_Server_Port);
             logger.debug("尝试连接服务器");
             os = socket.getOutputStream();//字节流(二进制)
             pw = new PrintWriter(os);//字符编码
 
             JSONObject message_9_Au_Json = new JSONObject();
             message_9_Au_Json.put("id", 9);
-            message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
+            message_9_Au_Json.put("Ticket_v", ClientApp.ticket_DOWN1);
             Date TS5 = new Date();
             JSONObject au_Origin = new JSONObject();
-            au_Origin.put("IDc", Main.User_ID);
-            au_Origin.put("ADc", Main.ADc);
+            au_Origin.put("IDc", ClientApp.User_ID);
+            au_Origin.put("ADc", ClientApp.ADc);
             au_Origin.put("TS5", TS5);
             String au_Origin_String = au_Origin.toJSONString();
-            String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
-            DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", au_Origin_String, au_Encrypt_String);
+            String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, ClientApp.K_C_DOWN1);
+            DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_DOWN1, "", "", au_Origin_String, au_Encrypt_String);
             message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
 
             pw.write(message_9_Au_Json + "\n");
@@ -292,15 +292,15 @@ public class User_Controller implements Initializable {
                 calendar.setTime(TS5);
                 calendar.add(Calendar.HOUR, 1);
                 Date TS5_TEST = calendar.getTime();
-                String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_DOWN1);
-                DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", TS5_TEST.toString(), TS5_TEST_String);
+                String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), ClientApp.K_C_DOWN1);
+                DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_DOWN1, "", "", TS5_TEST.toString(), TS5_TEST_String);
                 if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
                     logger.debug("下载端身份验证成功！");
 
                     logger.debug("开始获取文件列表");
                     JSONObject msg_13_Get_File_List_Json = new JSONObject();
                     msg_13_Get_File_List_Json.put("id", 13);
-                    msg_13_Get_File_List_Json.put("IDc", Main.User_ID);
+                    msg_13_Get_File_List_Json.put("IDc", ClientApp.User_ID);
                     String msg_13 = msg_13_Get_File_List_Json.toJSONString();
                     logger.debug("发送报文" + msg_13);
                     pw.write(msg_13 + "\n");
@@ -318,8 +318,8 @@ public class User_Controller implements Initializable {
                     if (msg_13_Reply_Json.getInteger("id") == 13) {
                         logger.debug("服务端返回文件列表");
                         String encrypted_File_Name_List_Json = msg_13_Reply_Json.getString("data");
-                        String decrypted_File_Name_List_Json = DES_des.Decrypt_Text(encrypted_File_Name_List_Json, Main.K_C_DOWN1);
-                        DES_RSA_Controller.EC_Show_Appendent(true, false, Main.K_C_DOWN1, "", "", decrypted_File_Name_List_Json, encrypted_File_Name_List_Json);
+                        String decrypted_File_Name_List_Json = DES_des.Decrypt_Text(encrypted_File_Name_List_Json, ClientApp.K_C_DOWN1);
+                        DES_RSA_Controller.EC_Show_Appendent(true, false, ClientApp.K_C_DOWN1, "", "", decrypted_File_Name_List_Json, encrypted_File_Name_List_Json);
                         JSONObject msg_13_File_Json = JSON.parseObject(decrypted_File_Name_List_Json);
                         logger.debug("Json文件列表解密尝试" + decrypted_File_Name_List_Json);
                         int file_Num = msg_13_File_Json.getInteger("num");
@@ -868,22 +868,22 @@ public class User_Controller implements Initializable {
                 update_and_view_Uploading_Pane();//更新
 
                 try {
-                    socket = new Socket(Main.up_Load_Server_IP, Main.up_Load_Server_Port);
+                    socket = new Socket(ClientApp.up_Load_Server_IP, ClientApp.up_Load_Server_Port);
                     logger.debug("尝试连接服务器");
                     os = socket.getOutputStream();//字节流(二进制)
                     pw = new PrintWriter(os);//字符编码
 
                     JSONObject message_9_Au_Json = new JSONObject();
                     message_9_Au_Json.put("id", 9);
-                    message_9_Au_Json.put("Ticket_v", Main.ticket_UP1);
+                    message_9_Au_Json.put("Ticket_v", ClientApp.ticket_UP1);
                     Date TS5 = new Date();
                     JSONObject au_Origin = new JSONObject();
-                    au_Origin.put("IDc", Main.User_ID);
-                    au_Origin.put("ADc", Main.ADc);
+                    au_Origin.put("IDc", ClientApp.User_ID);
+                    au_Origin.put("ADc", ClientApp.ADc);
                     au_Origin.put("TS5", TS5);
                     String au_Origin_String = au_Origin.toJSONString();
-                    String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_UP1);
-                    DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_UP1, "", "", au_Origin_String, au_Encrypt_String);
+                    String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, ClientApp.K_C_UP1);
+                    DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_UP1, "", "", au_Origin_String, au_Encrypt_String);
                     message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
 
                     pw.write(message_9_Au_Json + "\n");
@@ -905,8 +905,8 @@ public class User_Controller implements Initializable {
                         calendar.setTime(TS5);
                         calendar.add(calendar.HOUR, 1);
                         Date TS5_TEST = calendar.getTime();
-                        String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_UP1);
-                        DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_UP1, "", "", TS5_TEST.toString(), TS5_TEST_String);
+                        String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), ClientApp.K_C_UP1);
+                        DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_UP1, "", "", TS5_TEST.toString(), TS5_TEST_String);
                         if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
                             logger.debug("上传端身份验证成功！");
                             //获取最新的一个文件名
@@ -923,7 +923,7 @@ public class User_Controller implements Initializable {
 
                                         msg_11_data.put("filename", file_To_Upload.getName());
                                         //Key
-                                        String content_Key = file_To_Upload.getName() + Main.User_ID;
+                                        String content_Key = file_To_Upload.getName() + ClientApp.User_ID;
                                         content_Key = Integer.toString(content_Key.hashCode());
                                         byte[] encrypted_File_Bytes = DES_des.Encrypt_Text(decrypted_File_Bytes, content_Key);
                                         String encrypted_File_String = new String(encrypted_File_Bytes);
@@ -941,7 +941,7 @@ public class User_Controller implements Initializable {
                                         DES_RSA_Controller.EC_Show_Appendent(true, true, String.valueOf(content_Key), "", "", decrypted_File_String_show, encrypted_File_String_show);
                                         //sig
                                         String Hash_Code = String.valueOf(Base64.getEncoder().encodeToString(encrypted_File_Bytes).hashCode());
-                                        File rsa_file = new File("client-fx/target/" + Main.User_ID + "_RSA_Key.txt");
+                                        File rsa_file = new File("client-fx/target/" + ClientApp.User_ID + "_RSA_Key.txt");
                                         FileInputStream rsa_fip = new FileInputStream(rsa_file);
                                         InputStreamReader rsa_reader = new InputStreamReader(rsa_fip, "UTF-8");
                                         StringBuffer sb = new StringBuffer();
@@ -964,8 +964,8 @@ public class User_Controller implements Initializable {
 
                                         JSONObject msg_11 = new JSONObject();
                                         msg_11.put("id", 11);
-                                        msg_11.put("IDc", Main.User_ID);
-                                        String en_msg_11_data = DES_des.Encrypt_Text(msg_11_data.toJSONString(), Main.K_C_UP1);
+                                        msg_11.put("IDc", ClientApp.User_ID);
+                                        String en_msg_11_data = DES_des.Encrypt_Text(msg_11_data.toJSONString(), ClientApp.K_C_UP1);
                                         String msg_11_show_data = msg_11_data.toJSONString();
                                         String en_msg_11_show_data = en_msg_11_data;
                                         String msg_11_show_data_show = msg_11_show_data;
@@ -976,7 +976,7 @@ public class User_Controller implements Initializable {
                                         if (en_msg_11_show_data_show.length() > 500) {
                                             en_msg_11_show_data_show = en_msg_11_show_data_show.substring(0, 499);
                                         }
-                                        DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_UP1, "", "", msg_11_show_data_show, en_msg_11_show_data_show);
+                                        DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_UP1, "", "", msg_11_show_data_show, en_msg_11_show_data_show);
                                         msg_11.put("data", en_msg_11_data);
 
                                         rsa_fip.close();
@@ -1127,22 +1127,22 @@ public class User_Controller implements Initializable {
                 update_and_view_Downloading_Pane();//更新
 
                 try {
-                    socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
+                    socket = new Socket(ClientApp.down_Load_Server_IP, ClientApp.down_Load_Server_Port);
                     logger.debug("尝试连接服务器");
                     os = socket.getOutputStream();//字节流(二进制)
                     pw = new PrintWriter(os);//字符编码
 
                     JSONObject message_9_Au_Json = new JSONObject();
                     message_9_Au_Json.put("id", 9);
-                    message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
+                    message_9_Au_Json.put("Ticket_v", ClientApp.ticket_DOWN1);
                     Date TS5 = new Date();
                     JSONObject au_Origin = new JSONObject();
-                    au_Origin.put("IDc", Main.User_ID);
-                    au_Origin.put("ADc", Main.ADc);
+                    au_Origin.put("IDc", ClientApp.User_ID);
+                    au_Origin.put("ADc", ClientApp.ADc);
                     au_Origin.put("TS5", TS5);
                     String au_Origin_String = au_Origin.toJSONString();
-                    String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
-                    DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", au_Origin_String, au_Encrypt_String);
+                    String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, ClientApp.K_C_DOWN1);
+                    DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_DOWN1, "", "", au_Origin_String, au_Encrypt_String);
                     message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
 
                     pw.write(message_9_Au_Json + "\n");
@@ -1164,8 +1164,8 @@ public class User_Controller implements Initializable {
                         calendar.setTime(TS5);
                         calendar.add(calendar.HOUR, 1);
                         Date TS5_TEST = calendar.getTime();
-                        String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_DOWN1);
-                        DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", TS5_TEST.toString(), TS5_TEST_String);
+                        String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), ClientApp.K_C_DOWN1);
+                        DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_DOWN1, "", "", TS5_TEST.toString(), TS5_TEST_String);
                         if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
                             logger.debug("下载端身份验证成功！");
                             //获取最新的一个文件名
@@ -1175,11 +1175,11 @@ public class User_Controller implements Initializable {
                                 JSONObject msg_12_data = new JSONObject();
                                 msg_12_data.put("filename", filename_To_Download);
                                 String Origion_msg_12_data = msg_12_data.toJSONString();
-                                String Encrypt_msg_12_data = DES_des.Encrypt_Text(Origion_msg_12_data, Main.K_C_DOWN1);
-                                DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", Origion_msg_12_data, Encrypt_msg_12_data);
+                                String Encrypt_msg_12_data = DES_des.Encrypt_Text(Origion_msg_12_data, ClientApp.K_C_DOWN1);
+                                DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_DOWN1, "", "", Origion_msg_12_data, Encrypt_msg_12_data);
                                 JSONObject msg_12_Json = new JSONObject();
                                 msg_12_Json.put("id", 12);
-                                msg_12_Json.put("IDc", Main.User_ID);
+                                msg_12_Json.put("IDc", ClientApp.User_ID);
                                 msg_12_Json.put("data", Encrypt_msg_12_data);
 
                                 pw.write(msg_12_Json + "\n");
@@ -1196,7 +1196,7 @@ public class User_Controller implements Initializable {
                                 JSONObject msg_12_server_Json = JSON.parseObject(server_Message_12);
                                 if (msg_12_server_Json.getInteger("id") == 12) {//服务器是否返回12号文件报文
                                     String data_encrypted = msg_12_server_Json.getString("data");
-                                    String data_decrypted = DES_des.Decrypt_Text(data_encrypted, Main.K_C_DOWN1);
+                                    String data_decrypted = DES_des.Decrypt_Text(data_encrypted, ClientApp.K_C_DOWN1);
                                     String data_decrypted_show  = data_decrypted;
                                     if (data_decrypted_show.length() > 500) {
                                         data_decrypted_show = data_decrypted_show.substring(0, 499);
@@ -1205,14 +1205,14 @@ public class User_Controller implements Initializable {
                                     if (data_encrypted_show.length() > 500) {
                                         data_encrypted_show = data_encrypted_show.substring(0, 499);
                                     }
-                                    DES_RSA_Controller.EC_Show_Appendent(true, false, Main.K_C_DOWN1, "", "", data_decrypted_show, data_encrypted_show);
+                                    DES_RSA_Controller.EC_Show_Appendent(true, false, ClientApp.K_C_DOWN1, "", "", data_decrypted_show, data_encrypted_show);
 
                                     JSONObject data_server = JSON.parseObject(data_decrypted);
                                     logger.debug("12号报文data解密成功\t" + data_decrypted);
                                     if (data_server.getString("filename").equals(filename_To_Download)) {//判断文件是否下载正确
                                         String em = data_server.getString("Em");
                                         String Hash_Code = String.valueOf(em.hashCode());
-                                        File rsa_file = new File("client-fx/target/" + Main.User_ID + "_RSA_Key.txt");
+                                        File rsa_file = new File("client-fx/target/" + ClientApp.User_ID + "_RSA_Key.txt");
                                         FileInputStream rsa_fip = new FileInputStream(rsa_file);
                                         InputStreamReader rsa_reader = new InputStreamReader(rsa_fip, "UTF-8");
                                         StringBuffer sb = new StringBuffer();
@@ -1235,7 +1235,7 @@ public class User_Controller implements Initializable {
 
                                         if (sig_String.equals(data_server.getString("Sig"))) {
                                             logger.debug("签名验证成功");
-                                            String content_Key = filename_To_Download + Main.User_ID;
+                                            String content_Key = filename_To_Download + ClientApp.User_ID;
                                             content_Key = Integer.toString(content_Key.hashCode());
                                             byte[] encrypted_File_Bytes = Base64.getDecoder().decode(em);
                                             byte[] decrypted_File_Bytes = DES_des.Decrypt_Text(encrypted_File_Bytes, content_Key);
@@ -1348,22 +1348,22 @@ public class User_Controller implements Initializable {
             BufferedReader br = null;
 
             try {
-                socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
+                socket = new Socket(ClientApp.down_Load_Server_IP, ClientApp.down_Load_Server_Port);
                 logger.debug("尝试连接服务器");
                 os = socket.getOutputStream();//字节流(二进制)
                 pw = new PrintWriter(os);//字符编码
 
                 JSONObject message_9_Au_Json = new JSONObject();
                 message_9_Au_Json.put("id", 9);
-                message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
+                message_9_Au_Json.put("Ticket_v", ClientApp.ticket_DOWN1);
                 Date TS5 = new Date();
                 JSONObject au_Origin = new JSONObject();
-                au_Origin.put("IDc", Main.User_ID);
-                au_Origin.put("ADc", Main.ADc);
+                au_Origin.put("IDc", ClientApp.User_ID);
+                au_Origin.put("ADc", ClientApp.ADc);
                 au_Origin.put("TS5", TS5);
                 String au_Origin_String = au_Origin.toJSONString();
-                String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
-                DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", au_Origin_String, au_Encrypt_String);
+                String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, ClientApp.K_C_DOWN1);
+                DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_DOWN1, "", "", au_Origin_String, au_Encrypt_String);
                 message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
 
                 pw.write(message_9_Au_Json + "\n");
@@ -1383,19 +1383,19 @@ public class User_Controller implements Initializable {
                     calendar.setTime(TS5);
                     calendar.add(calendar.HOUR, 1);
                     Date TS5_TEST = calendar.getTime();
-                    String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_DOWN1);
-                    DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", TS5_TEST.toString(), TS5_TEST_String);
+                    String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), ClientApp.K_C_DOWN1);
+                    DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_DOWN1, "", "", TS5_TEST.toString(), TS5_TEST_String);
                     if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
                         logger.debug("下载端身份验证成功！");
                         JSONObject msg_14_data_Json = new JSONObject();
                         msg_14_data_Json.put("num", delete_filename_List.size());
                         msg_14_data_Json.put("filename", delete_filename_List);
                         //进行des加密
-                        String msg_14_data_encrypted = DES_des.Encrypt_Text(msg_14_data_Json.toJSONString(), Main.K_C_DOWN1);
-                        DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", msg_14_data_Json.toJSONString(), msg_14_data_encrypted);
+                        String msg_14_data_encrypted = DES_des.Encrypt_Text(msg_14_data_Json.toJSONString(), ClientApp.K_C_DOWN1);
+                        DES_RSA_Controller.EC_Show_Appendent(true, true, ClientApp.K_C_DOWN1, "", "", msg_14_data_Json.toJSONString(), msg_14_data_encrypted);
                         JSONObject msg_14_Json = new JSONObject();
                         msg_14_Json.put("id", 14);
-                        msg_14_Json.put("IDc", Main.User_ID);
+                        msg_14_Json.put("IDc", ClientApp.User_ID);
                         msg_14_Json.put("data", msg_14_data_encrypted);
 
                         pw.write(msg_14_Json + "\n");

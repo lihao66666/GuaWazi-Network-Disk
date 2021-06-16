@@ -1,6 +1,6 @@
 package App.Controller;
 
-import App.Main;
+import App.ClientApp;
 import App.Starter;
 import DES.DES_des;
 import RSA.RSA;
@@ -156,7 +156,7 @@ public class Login_Controller implements Initializable {
 
         try {
             // 和服务器创建连接
-            socket = new Socket(Main.AS_IP, Main.AS_Port);
+            socket = new Socket(ClientApp.AS_IP, ClientApp.AS_Port);
             logger.debug("尝试连接服务器");
 
             os = socket.getOutputStream();//字节流(二进制)
@@ -238,14 +238,14 @@ public class Login_Controller implements Initializable {
                                 String msg_6_de_String = DES_des.Decrypt_Text(msg_6_en_String, Integer.toString(user_ID.hashCode()));
                                 DES_RSA_Controller.EC_Show_Appendent(true, false, Integer.toString(user_ID.hashCode()), "", "", msg_6_de_String, msg_6_en_String);
                                 JSONObject msg_6_Json = JSONObject.parseObject(msg_6_de_String);
-                                Main.ticket_TGS = msg_6_Json.getString("Ticket_tgs");
-                                Main.K_C_TGS = msg_6_Json.getString("Kc_tgs");
-                                logger.debug("获取到Ticket-tgs：" + Main.ticket_TGS);
+                                ClientApp.ticket_TGS = msg_6_Json.getString("Ticket_tgs");
+                                ClientApp.K_C_TGS = msg_6_Json.getString("Kc_tgs");
+                                logger.debug("获取到Ticket-tgs：" + ClientApp.ticket_TGS);
 
-                                Main.ADc = socket.getInetAddress().getHostAddress();
-                                int status = get_TicketV(user_ID, Main.up_Load_Server_ID);
+                                ClientApp.ADc = socket.getInetAddress().getHostAddress();
+                                int status = get_TicketV(user_ID, ClientApp.up_Load_Server_ID);
                                 if (status == 1) {
-                                    status = get_TicketV(user_ID, Main.down_Load_Server_ID);
+                                    status = get_TicketV(user_ID, ClientApp.down_Load_Server_ID);
                                 }
                                 return status;
                             } else {
@@ -303,16 +303,16 @@ public class Login_Controller implements Initializable {
         BufferedReader br = null;
 
         try {
-            socket = new Socket(Main.TGS_IP, Main.TGS_Port);
+            socket = new Socket(ClientApp.TGS_IP, ClientApp.TGS_Port);
             logger.debug("尝试连接服务器");
 
             os = socket.getOutputStream();//字节流(二进制)
             pw = new PrintWriter(os);//字符编码
-            String au_Key = String.valueOf((user_ID + Main.TGS_ID).hashCode());
+            String au_Key = String.valueOf((user_ID + ClientApp.TGS_ID).hashCode());
 
             JSONObject au_Origin = new JSONObject();
             au_Origin.put("IDc", user_ID);
-            au_Origin.put("ADc", Main.ADc);
+            au_Origin.put("ADc", ClientApp.ADc);
             au_Origin.put("TS3", new Date());
             String au_Origin_String = au_Origin.toJSONString();
             String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, au_Key);
@@ -320,7 +320,7 @@ public class Login_Controller implements Initializable {
             JSONObject json_Message_7 = new JSONObject();
             json_Message_7.put("id", 7);
             json_Message_7.put("IDv", id_V);
-            json_Message_7.put("Ticket_TGS", Main.ticket_TGS);
+            json_Message_7.put("Ticket_TGS", ClientApp.ticket_TGS);
             json_Message_7.put("Authenticator_c", au_Encrypt_String);
             String message_7 = json_Message_7.toJSONString();
 
@@ -338,20 +338,20 @@ public class Login_Controller implements Initializable {
 
             JSONObject msg_8 = JSON.parseObject(server_Message_8);//转换为Json对象
             if (msg_8.getInteger("id") == 8) {
-                if (id_V.equals(Main.up_Load_Server_ID)) {
+                if (id_V.equals(ClientApp.up_Load_Server_ID)) {
                     String msg_8_en_String = msg_8.getString("TGS_C");
-                    String msg_8_de_String = DES_des.Decrypt_Text(msg_8_en_String, Main.K_C_TGS);
-                    DES_RSA_Controller.EC_Show_Appendent(true, false, Main.K_C_TGS, "", "", msg_8_de_String, msg_8_en_String);
+                    String msg_8_de_String = DES_des.Decrypt_Text(msg_8_en_String, ClientApp.K_C_TGS);
+                    DES_RSA_Controller.EC_Show_Appendent(true, false, ClientApp.K_C_TGS, "", "", msg_8_de_String, msg_8_en_String);
                     JSONObject msg_8_Json = JSON.parseObject(msg_8_de_String);
-                    Main.ticket_UP1 = msg_8_Json.getString("Ticket_V");
-                    Main.K_C_UP1 = msg_8_Json.getString("Kc_v");
+                    ClientApp.ticket_UP1 = msg_8_Json.getString("Ticket_V");
+                    ClientApp.K_C_UP1 = msg_8_Json.getString("Kc_v");
                 } else {
                     String msg_8_en_String = msg_8.getString("TGS_C");
-                    String msg_8_de_String = DES_des.Decrypt_Text(msg_8_en_String, Main.K_C_TGS);
-                    DES_RSA_Controller.EC_Show_Appendent(true, false, Main.K_C_TGS, "", "", msg_8_de_String, msg_8_en_String);
+                    String msg_8_de_String = DES_des.Decrypt_Text(msg_8_en_String, ClientApp.K_C_TGS);
+                    DES_RSA_Controller.EC_Show_Appendent(true, false, ClientApp.K_C_TGS, "", "", msg_8_de_String, msg_8_en_String);
                     JSONObject msg_8_Json = JSON.parseObject(msg_8_de_String);
-                    Main.ticket_DOWN1 = msg_8_Json.getString("Ticket_V");
-                    Main.K_C_DOWN1 = msg_8_Json.getString("Kc_v");
+                    ClientApp.ticket_DOWN1 = msg_8_Json.getString("Ticket_V");
+                    ClientApp.K_C_DOWN1 = msg_8_Json.getString("Kc_v");
                 }
                 return 1;//成功
             } else {
@@ -391,7 +391,7 @@ public class Login_Controller implements Initializable {
         JSONObject json_Message_5 = new JSONObject();
         json_Message_5.put("id", id);
         json_Message_5.put("user_ID", User_ID);
-        json_Message_5.put("IDtgs", Main.TGS_ID);
+        json_Message_5.put("IDtgs", ClientApp.TGS_ID);
         Date TS = new Date();
         json_Message_5.put("TS1", TS);
         return json_Message_5.toJSONString();
@@ -412,7 +412,7 @@ public class Login_Controller implements Initializable {
         BufferedReader br = null;
         try {
             // 和服务器创建连接
-            socket = new Socket(Main.AS_IP, Main.AS_Port);
+            socket = new Socket(ClientApp.AS_IP, ClientApp.AS_Port);
             logger.debug("尝试连接服务器");
 
             os = socket.getOutputStream();//字节流(二进制)
@@ -646,9 +646,9 @@ public class Login_Controller implements Initializable {
                         show_Error_Alerter("登录状态", "服务端错误", "服务端异常断开！请重试！");
                         break;
                     case 1:
-                        Main.User_ID = ID;
-                        logger.debug("与UP1的通信密钥：" + Main.K_C_UP1);
-                        logger.debug("与DOWN1的通信密钥：" + Main.K_C_DOWN1);
+                        ClientApp.User_ID = ID;
+                        logger.debug("与UP1的通信密钥：" + ClientApp.K_C_UP1);
+                        logger.debug("与DOWN1的通信密钥：" + ClientApp.K_C_DOWN1);
                         Starter.setRoot("User", "瓜娃子云盘", 1280, 800, 980, 600);//先进入再弹窗阻塞
                         show_Info_Alerter("登录状态", "登录成功", "正在进入云盘");
                         break;
