@@ -1,5 +1,6 @@
 package App.Controller;
 
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -12,7 +13,7 @@ import javafx.scene.text.Font;
 class User_Show_Upload_Task_Pane_Sinal {
     public AnchorPane pane;
     public Boolean is_Checked;
-    public Boolean is_Downloading;
+    public Boolean is_Uploading;
     Label check_Box;
     Label file_Name_Label;
     Label status_Label;
@@ -26,7 +27,7 @@ class User_Show_Upload_Task_Pane_Sinal {
         pane = new AnchorPane();
         file_Name_Label = new Label();
         separator = new Separator();
-        is_Downloading = false;
+        is_Uploading = false;
 
         is_Checked = false;
         pane.setMaxHeight(35d);
@@ -93,9 +94,53 @@ class User_Show_Upload_Task_Pane_Sinal {
         check_Box.setGraphic(unchecked_Image);
     }
 
-    public void set_is_Downloading() {
-        this.is_Downloading = true;
-        status_Label.setText("上传中");
+    public void show_Uploading(){
+        this.is_Uploading = true;
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("上传中");
+            }
+        });
+    }
+
+    public void show_Error_Uploading(){
+        this.is_Uploading = false;
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("出错了");
+            }
+        });
+    }
+
+//    public void show_Pause(){
+//        this.is_Uploading = false;
+//        Platform.runLater(new Runnable() {//异步更新UI
+//            @Override
+//            public void run() {
+//                status_Label.setText("暂停中");
+//            }
+//        });
+//    }
+
+    public void show_Restart(){
+        this.is_Uploading = false;
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("等待中");
+            }
+        });
+    }
+    public void show_Complete(){
+        this.is_Uploading = false;
+        Platform.runLater(new Runnable() {//异步更新UI
+            @Override
+            public void run() {
+                status_Label.setText("已上传");
+            }
+        });
     }
 
 

@@ -19,9 +19,7 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.net.URL;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.ResourceBundle;
 
 
@@ -191,8 +189,8 @@ public class Login_Controller implements Initializable {
                     //解密
                     String CA = msg.getString("CA");//获取客户端证书
                     String DecryptedCA = RSA.Decrypt(CA, KDC_d, KDC_n);//证书使用KDC私钥解密
+                    DES_RSA_Controller.EC_Show_Appendent(false, false, "", "证书解密,未使用公钥", "d:" + KDC_d + "\tn:" + KDC_n, DecryptedCA, CA);
                     logger.debug("解密结果=" + DecryptedCA);
-                    DES_RSA_Controller.EC_Show_Appendent(false, false, "", "unknown", KDC_d.toString() + KDC_n.toString(), DecryptedCA, CA);
 
                     //获取json具体内容
                     JSONObject ca = JSON.parseObject(DecryptedCA);//将解密的结果转换为一个Json对象
@@ -238,6 +236,7 @@ public class Login_Controller implements Initializable {
                             if (msg_6.getInteger("id") == 6) {
                                 String msg_6_en_String = msg_6.getString("encryptedTicket");
                                 String msg_6_de_String = DES_des.Decrypt_Text(msg_6_en_String, Integer.toString(user_ID.hashCode()));
+                                DES_RSA_Controller.EC_Show_Appendent(true, false, Integer.toString(user_ID.hashCode()), "", "", msg_6_de_String, msg_6_en_String);
                                 JSONObject msg_6_Json = JSONObject.parseObject(msg_6_de_String);
                                 Main.ticket_TGS = msg_6_Json.getString("Ticket_tgs");
                                 Main.K_C_TGS = msg_6_Json.getString("Kc_tgs");
@@ -317,7 +316,7 @@ public class Login_Controller implements Initializable {
             au_Origin.put("TS3", new Date());
             String au_Origin_String = au_Origin.toJSONString();
             String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, au_Key);
-
+            DES_RSA_Controller.EC_Show_Appendent(true, true, au_Key, "", "", au_Origin_String, au_Encrypt_String);
             JSONObject json_Message_7 = new JSONObject();
             json_Message_7.put("id", 7);
             json_Message_7.put("IDv", id_V);
@@ -342,12 +341,14 @@ public class Login_Controller implements Initializable {
                 if (id_V.equals(Main.up_Load_Server_ID)) {
                     String msg_8_en_String = msg_8.getString("TGS_C");
                     String msg_8_de_String = DES_des.Decrypt_Text(msg_8_en_String, Main.K_C_TGS);
+                    DES_RSA_Controller.EC_Show_Appendent(true, false, Main.K_C_TGS, "", "", msg_8_de_String, msg_8_en_String);
                     JSONObject msg_8_Json = JSON.parseObject(msg_8_de_String);
                     Main.ticket_UP1 = msg_8_Json.getString("Ticket_V");
                     Main.K_C_UP1 = msg_8_Json.getString("Kc_v");
                 } else {
                     String msg_8_en_String = msg_8.getString("TGS_C");
                     String msg_8_de_String = DES_des.Decrypt_Text(msg_8_en_String, Main.K_C_TGS);
+                    DES_RSA_Controller.EC_Show_Appendent(true, false, Main.K_C_TGS, "", "", msg_8_de_String, msg_8_en_String);
                     JSONObject msg_8_Json = JSON.parseObject(msg_8_de_String);
                     Main.ticket_DOWN1 = msg_8_Json.getString("Ticket_V");
                     Main.K_C_DOWN1 = msg_8_Json.getString("Kc_v");
@@ -444,9 +445,9 @@ public class Login_Controller implements Initializable {
                     //解密
                     String CA = msg.getString("CA");//获取客户端证书
                     String DecryptedCA = RSA.Decrypt(CA, KDC_d, KDC_n);//证书使用KDC私钥解密
+                    DES_RSA_Controller.EC_Show_Appendent(false, false, "", "证书解密,未使用公钥", "d:" + KDC_d + "\tn:" + KDC_n, DecryptedCA, CA);
                     logger.debug("解密结果=" + DecryptedCA);
 
-                    DES_RSA_Controller.EC_Show_Appendent(false, false, "", "unknown", KDC_d.toString() + KDC_n.toString(), DecryptedCA, CA);
 
                     //获取json具体内容
                     JSONObject ca = JSON.parseObject(DecryptedCA);//将解密的结果转换为一个Json对象
@@ -607,8 +608,7 @@ public class Login_Controller implements Initializable {
         Json_ID_PASSWD.put("password", user_PassWD);
         String origin_ID_PASSWD = Json_ID_PASSWD.toJSONString();
         String encrypt_ID_PASSWD = RSA.Encrypt(origin_ID_PASSWD, e, n);
-
-        DES_RSA_Controller.EC_Show_Appendent(false, true, "", "e:\t" + String.valueOf(e) + "\tn:\t" + String.valueOf(n), "unknown", origin_ID_PASSWD, encrypt_ID_PASSWD);
+        DES_RSA_Controller.EC_Show_Appendent(false, true, "", "e:" + e + "\tn:" + n, "账号密码加密,未使用私钥", origin_ID_PASSWD, encrypt_ID_PASSWD);
 
         //报文
         JSONObject json_Message_3 = new JSONObject();
@@ -649,8 +649,8 @@ public class Login_Controller implements Initializable {
                         Main.User_ID = ID;
                         logger.debug("与UP1的通信密钥：" + Main.K_C_UP1);
                         logger.debug("与DOWN1的通信密钥：" + Main.K_C_DOWN1);
+                        Starter.setRoot("User", "瓜娃子云盘", 1280, 800, 980, 600);//先进入再弹窗阻塞
                         show_Info_Alerter("登录状态", "登录成功", "正在进入云盘");
-                        Starter.setRoot("User", "瓜娃子云盘", 1280, 800, 980, 600);
                         break;
                     case 2:
                         show_Error_Alerter("登录状态", "RSA加密IO错误", "请重试");

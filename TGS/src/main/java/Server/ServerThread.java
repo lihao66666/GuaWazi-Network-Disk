@@ -10,10 +10,10 @@ import java.util.Scanner;
 
 public class ServerThread extends Thread {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ServerThread.class);
-    private static Socket socket = null;
+    private Socket socket = null;
     private TGS_Server server;//应用服务
 
-    public ServerThread(Socket socket) {
+    public ServerThread(Socket socket) throws SQLException, ClassNotFoundException {
         logger.info("通信线程已启动");
         this.socket = socket;
         server = new TGS_Server(socket.getInetAddress().getHostAddress());
@@ -73,12 +73,7 @@ public class ServerThread extends Thread {
                     default:
                         logger.error("异常报文");
                 }
-                Scanner input = new Scanner(System.in);
-                System.out.println("服务端输入：");
-                String str = input.next();
-                pw.write(str + "\n");
-                pw.flush();
-                //  socket.shutdownOutput();
+
             }
         } catch (Exception e) {
             // TODO: handle exception
