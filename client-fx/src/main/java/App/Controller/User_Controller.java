@@ -282,10 +282,10 @@ public class User_Controller implements Initializable {
             is = socket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
             String server_Message_10 = br.readLine();
-            //心跳包
-            if (server_Message_10 == null) {//数据异常判断客户端是否关闭
-                socket.sendUrgentData(0xFF);//抛出异常
-            }
+//            //心跳包
+//            if (server_Message_10 == null) {//数据异常判断客户端是否关闭
+//                socket.sendUrgentData(0xFF);//抛出异常
+//            }
             JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
             if (msg_10_Json.getInteger("id") == 10) {
                 Calendar calendar = new GregorianCalendar();
@@ -310,10 +310,10 @@ public class User_Controller implements Initializable {
                     is = socket.getInputStream();
                     br = new BufferedReader(new InputStreamReader(is));
                     String msg_13_Reply_File_List = br.readLine();
-                    //心跳包
-                    if (msg_13_Reply_File_List == null) {//数据异常判断客户端是否关闭
-                        socket.sendUrgentData(0xFF);//抛出异常
-                    }
+//                    //心跳包
+//                    if (msg_13_Reply_File_List == null) {//数据异常判断客户端是否关闭
+//                        socket.sendUrgentData(0xFF);//抛出异常
+//                    }
                     JSONObject msg_13_Reply_Json = JSON.parseObject(msg_13_Reply_File_List);
                     if (msg_13_Reply_Json.getInteger("id") == 13) {
                         logger.debug("服务端返回文件列表");
@@ -894,10 +894,10 @@ public class User_Controller implements Initializable {
                     is = socket.getInputStream();
                     br = new BufferedReader(new InputStreamReader(is));
                     String server_Message_10 = br.readLine();
-                    //心跳包
-                    if (server_Message_10 == null) {//数据异常判断客户端是否关闭
-                        socket.sendUrgentData(0xFF);//抛出异常
-                    }
+//                    //心跳包
+//                    if (server_Message_10 == null) {//数据异常判断客户端是否关闭
+//                        socket.sendUrgentData(0xFF);//抛出异常
+//                    }
                     //响应请求
                     JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
                     if (msg_10_Json.getInteger("id") == 10) {
@@ -989,10 +989,10 @@ public class User_Controller implements Initializable {
                                         is = socket.getInputStream();
                                         br = new BufferedReader(new InputStreamReader(is));
                                         String msg_0 = br.readLine();
-                                        //心跳包
-                                        if (msg_0 == null) {//数据异常判断客户端是否关闭
-                                            socket.sendUrgentData(0xFF);//抛出异常
-                                        }
+//                                        //心跳包
+//                                        if (msg_0 == null) {//数据异常判断客户端是否关闭
+//                                            socket.sendUrgentData(0xFF);//抛出异常
+//                                        }
                                         JSONObject msg_0_Json = JSON.parseObject(msg_0);
                                         if (msg_0_Json.getInteger("id") == 0) {
                                             if (msg_0_Json.getInteger("status") == 11) {
@@ -1153,10 +1153,10 @@ public class User_Controller implements Initializable {
                     is = socket.getInputStream();
                     br = new BufferedReader(new InputStreamReader(is));
                     String server_Message_10 = br.readLine();
-                    //心跳包
-                    if (server_Message_10 == null) {//数据异常判断客户端是否关闭
-                        socket.sendUrgentData(0xFF);//抛出异常
-                    }
+//                    //心跳包
+//                    if (server_Message_10 == null) {//数据异常判断客户端是否关闭
+//                        socket.sendUrgentData(0xFF);//抛出异常
+//                    }
                     //响应请求
                     JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
                     if (msg_10_Json.getInteger("id") == 10) {
@@ -1189,10 +1189,10 @@ public class User_Controller implements Initializable {
                                 is = socket.getInputStream();
                                 br = new BufferedReader(new InputStreamReader(is));
                                 String server_Message_12 = br.readLine();
-                                //心跳包
-                                if (server_Message_12 == null) {//数据异常判断客户端是否关闭
-                                    socket.sendUrgentData(0xFF);//抛出异常
-                                }
+//                                //心跳包
+//                                if (server_Message_12 == null) {//数据异常判断客户端是否关闭
+//                                    socket.sendUrgentData(0xFF);//抛出异常
+//                                }
                                 JSONObject msg_12_server_Json = JSON.parseObject(server_Message_12);
                                 if (msg_12_server_Json.getInteger("id") == 12) {//服务器是否返回12号文件报文
                                     String data_encrypted = msg_12_server_Json.getString("data");
@@ -1373,10 +1373,10 @@ public class User_Controller implements Initializable {
                 is = socket.getInputStream();
                 br = new BufferedReader(new InputStreamReader(is));
                 String server_Message_10 = br.readLine();
-                //心跳包
-                if (server_Message_10 == null) {//数据异常判断客户端是否关闭
-                    socket.sendUrgentData(0xFF);//抛出异常
-                }
+//                //心跳包
+//                if (server_Message_10 == null) {//数据异常判断客户端是否关闭
+//                    socket.sendUrgentData(0xFF);//抛出异常
+//                }
                 JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
                 if (msg_10_Json.getInteger("id") == 10) {
                     Calendar calendar = new GregorianCalendar();
@@ -1405,10 +1405,10 @@ public class User_Controller implements Initializable {
                         is = socket.getInputStream();
                         br = new BufferedReader(new InputStreamReader(is));
                         String server_Message_0 = br.readLine();
-                        //心跳包
-                        if (server_Message_0 == null) {//数据异常判断客户端是否关闭
-                            socket.sendUrgentData(0xFF);//抛出异常
-                        }
+//                        //心跳包
+//                        if (server_Message_0 == null) {//数据异常判断客户端是否关闭
+//                            socket.sendUrgentData(0xFF);//抛出异常
+//                        }
                         JSONObject msg_0_Status = JSON.parseObject(server_Message_0);
                         if (msg_0_Status.getInteger("id") == 0) {
                             if (msg_0_Status.getInteger("status") == 13) {
