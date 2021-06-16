@@ -213,6 +213,10 @@ public class AS_Server {
         JSONObject msg = JSON.parseObject(message);//将传入的文件转换为Json对象
         String loginData_rsa = msg.getString("loginData");//获取对象中的登录信息
         String loginData_json = RSA.Decrypt(loginData_rsa, as_d, as_n);//将登录信息使用AS的私钥进行解密
+
+        DES_RSA_Controller.EC_Show_Appendent(false, false, "",AS_obj.getString("PK") , AS_obj.getString("SK"), loginData_rsa, loginData_json);
+
+
         JSONObject loginData = JSON.parseObject(loginData_json);//解密出来的结果转换为Json对象
         String user_id = loginData.getString("user_ID");//获取用户ID
         String password = loginData.getString("password");//获取用户密码
@@ -302,6 +306,8 @@ public class AS_Server {
         AS_C.put("Ticket_tgs", Ticket);
         String encryptedTicket = AS_C.toJSONString();
         encryptedTicket = DES_des.Encrypt_Text(encryptedTicket,  Integer.toString(IDc.hashCode()));
+        DES_RSA_Controller.EC_Show_Appendent(true, true, Integer.toString(IDc.hashCode()), "","", AS_C.toJSONString(), encryptedTicket);
+
         JSONObject msg = new JSONObject();
         msg.put("id", 6);
         msg.put("encryptedTicket", encryptedTicket);
