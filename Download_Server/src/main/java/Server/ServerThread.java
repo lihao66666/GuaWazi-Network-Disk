@@ -34,7 +34,7 @@ public class ServerThread extends Thread {
                 br = new BufferedReader(isr);
                 String info = br.readLine();
                 //心跳包
-                if (info.toString() == null) {//数据异常判断客户端是否关闭
+                if (info == null) {//数据异常判断客户端是否关闭
                     socket.sendUrgentData(0xFF);//抛出异常
                 }
                 //响应请求
