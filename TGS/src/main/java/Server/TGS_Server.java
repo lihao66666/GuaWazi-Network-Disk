@@ -1,14 +1,10 @@
 package Server;
 
 import DES.DES_des;
+import Server.Show.controller.DES_RSA_Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,7 +14,7 @@ public class TGS_Server {
     private static final String URL = "jdbc:mysql://47.117.190.99:3306/gwz_db";//连接到的数据库
     private static final String NAME = "GWZ_DB";//用户名
     private static final String PASSWORD = "3hfYLRaCmyfKMWEH";//密码
-    public static Connection conn = null;
+    public Connection conn = null;
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TGS_Server.class);
     static final String Server_ID = "TGS1";//服务器的ID(固定)
@@ -29,11 +25,14 @@ public class TGS_Server {
     private String Kc_tgs;
     private String IDv;
 
-    public TGS_Server(String Client_AD) {//构造函数
+    public TGS_Server(String Client_AD) throws ClassNotFoundException, SQLException {//构造函数
         logger.debug("点对点UploadServer已启动,客户端IP:" + Client_AD);
         this.Client_AD = Client_AD;//处理该地址的server
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection(URL, NAME, PASSWORD);
     }
 
+/*
     public static Boolean ConnectToDB() throws ClassNotFoundException, SQLException {//连接到数据库，保存连接句柄
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -51,6 +50,7 @@ public class TGS_Server {
 
 
     }
+*/
 
 
     public String StatusMessage(int type) {//状态报文函数
@@ -66,7 +66,7 @@ public class TGS_Server {
             JSONObject obj = JSON.parseObject(message);
             IDv = obj.getString("IDv");
             String Ticket_TGS = obj.getString("Ticket_TGS");
-            if(conn.isClosed())ConnectToDB();
+//            if (conn.isClosed()) ConnectToDB();
             Statement stmt = conn.createStatement();
             String Ktgs = null;
             ResultSet rs = stmt.executeQuery("select * from `Key_AS-TGS`");//从数据库中获取所有用户ID
@@ -77,7 +77,9 @@ public class TGS_Server {
 
                 //}
             }
+            String ttttt = Ticket_TGS;
             Ticket_TGS = DES_des.Decrypt_Text(Ticket_TGS, Ktgs);
+            DES_RSA_Controller.EC_Show_Appendent(true, false, Ktgs, "", "", ttttt, Ticket_TGS);
             logger.debug("Ticket_Tgs=====" + Ticket_TGS);
             JSONObject Ticket_obj = JSON.parseObject(Ticket_TGS);
             Kc_tgs = Ticket_obj.getString("Kc_tgs");
@@ -91,7 +93,7 @@ public class TGS_Server {
                 return -1;
             }
         } catch (Exception e) {
-            logger.debug("TGS验证失败");
+            logger.debug("TGS验证失败=========="+e.getMessage());
             return 6;
         }
 
@@ -111,7 +113,7 @@ public class TGS_Server {
         TicketV_obj.put("TS4", TS4);
         TicketV_obj.put("Lifetime4", LifeTime4);
         String TicketV = TicketV_obj.toJSONString();
-        if (conn.isClosed()) ConnectToDB();
+//        if (conn.isClosed()) ConnectToDB();
         Statement stmt = conn.createStatement();
         String Ktgs_v = null;
         ResultSet rs = stmt.executeQuery("select * from `Key_V-TGS`");//从数据库中获取所有用户ID
@@ -122,14 +124,19 @@ public class TGS_Server {
 
             }
         }
+        String t = TicketV;
         TicketV = DES_des.Encrypt_Text(TicketV, Ktgs_v);
+        DES_RSA_Controller.EC_Show_Appendent(true, true, Ktgs_v, "", "", t, TicketV);
+
         JSONObject TGS_C_obj = new JSONObject();
         TGS_C_obj.put("Kc_v", Integer.toString((Client_ID + IDv).hashCode()));
         TGS_C_obj.put("IDv", IDv);
         TGS_C_obj.put("TS4", TS4);
         TGS_C_obj.put("Ticket_V", TicketV);
         String TGS_C = TGS_C_obj.toJSONString();
+        String ttt = TGS_C;
         TGS_C = DES_des.Encrypt_Text(TGS_C, Kc_tgs);
+        DES_RSA_Controller.EC_Show_Appendent(true, true, Kc_tgs, "", "", ttt, TGS_C);
         JSONObject msg = new JSONObject();
         msg.put("id", 8);
         msg.put("TGS_C", TGS_C);

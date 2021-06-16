@@ -522,28 +522,31 @@ public class User_Controller implements Initializable {
     private void delete_Download_Task_Clicked() {
         int t = download_List.get_Total();
         logger.debug("准备删除任务");
-        StringBuilder delete_Task_Name = new StringBuilder();
-        StringBuilder delete_Failed = new StringBuilder();
+        String delete_Task_Name = "";
+        String delete_Failed = "";
         for (int i = 0; i < t; i++) {
             if (!download_List.is_NULL.get(i)) {//判断任务是否删除
                 if (download_List.child_Pane.get(i).is_Checked) {//选中
                     if (!download_List.child_Pane.get(i).is_Downloading) {//先添加正在等待的
-                        delete_Task_Name.append(download_List.get_File_Name(i)).append("\n");
+                        delete_Task_Name += download_List.get_File_Name(i) + "\n";
                         logger.debug("删除任务: " + download_List.get_File_Name(i));
                         download_List.delete(i);//从列表中删除
                     } else {
-                        delete_Failed.append(download_List.get_File_Name(i)).append("\n");
+                        delete_Failed += download_List.get_File_Name(i) + "\n";
                         logger.debug("删除任务错误: 任务正在下载中" + download_List.get_File_Name(i));
                     }
                 }
             }
         }
-        if (delete_Failed.toString().equals("")) {
-            show_Info_Alerter("提示", "以下任务已经删除\n", delete_Task_Name.toString());
+        if (delete_Task_Name.equals("") && delete_Failed.equals("")) {
+            show_Error_Alerter("提示", "没有选择文件", "请选择文件后再点击删除按钮！");
         } else {
-            show_Info_Alerter("提示", "以下任务已经删除\n" + delete_Task_Name, "以下任务正在下载中，无法删除\n" + delete_Failed);
+            if (delete_Failed.toString().equals("")) {
+                show_Info_Alerter("提示", "以下任务已经删除\n", delete_Task_Name.toString());
+            } else {
+                show_Info_Alerter("提示", "以下任务已经删除\n" + delete_Task_Name, "以下任务正在下载中，无法删除\n" + delete_Failed);
+            }
         }
-
         delete_Task_Name = null;
         delete_Failed = null;
         downloading_Button_Pane_Init();//更新面板取消选中
@@ -570,13 +573,15 @@ public class User_Controller implements Initializable {
                 }
             }
         }
-
-        if (restart_Failed.equals("")) {
-            show_Info_Alerter("提示", "以下任务已经重启\n", restart_Task_Name);
+        if (restart_Task_Name.equals("") && restart_Failed.equals("")) {
+            show_Error_Alerter("提示", "未选择任务", "请选择任务后进行重启");
         } else {
-            show_Info_Alerter("提示", "以下任务已经重启\n" + restart_Task_Name, "以下任务未发生错误，无法重启\n" + restart_Failed);
+            if (restart_Failed.equals("")) {
+                show_Info_Alerter("提示", "以下任务已经重启\n", restart_Task_Name);
+            } else {
+                show_Info_Alerter("提示", "以下任务已经重启\n" + restart_Task_Name, "以下任务未发生错误，无法重启\n" + restart_Failed);
+            }
         }
-
         restart_Task_Name = null;
         restart_Failed = null;
         downloading_Button_Pane_Init();//更新面板取消选中
@@ -727,12 +732,15 @@ public class User_Controller implements Initializable {
                 }
             }
         }
-        if (delete_Failed.equals("")) {
-            show_Info_Alerter("提示", "以下任务已经删除\n", delete_Task_Name);
+        if (delete_Task_Name.equals("") && delete_Failed.equals("")) {
+            show_Error_Alerter("提示", "未选择任务", "请选择任务后在进行删除！");
         } else {
-            show_Info_Alerter("提示", "以下任务已经删除\n" + delete_Task_Name, "以下任务正在下载中，无法删除\n" + delete_Failed);
+            if (delete_Failed.equals("")) {
+                show_Info_Alerter("提示", "以下任务已经删除\n", delete_Task_Name);
+            } else {
+                show_Info_Alerter("提示", "以下任务已经删除\n" + delete_Task_Name, "以下任务正在下载中，无法删除\n" + delete_Failed);
+            }
         }
-
         delete_Task_Name = null;
         delete_Failed = null;
         uploading_Button_Pane_Init();//更新面板取消选中
@@ -759,13 +767,15 @@ public class User_Controller implements Initializable {
                 }
             }
         }
-
-        if (restart_Failed.equals("")) {
-            show_Info_Alerter("提示", "以下任务已经重启\n", restart_Task_Name);
+        if (restart_Task_Name.equals("") && restart_Failed.equals("")) {
+            show_Error_Alerter("提示", "未选择任务", "请选择任务后进行重启");
         } else {
-            show_Info_Alerter("提示", "以下任务已经重启\n" + restart_Task_Name, "以下任务未发生错误，无法重启\n" + restart_Failed);
+            if (restart_Failed.equals("")) {
+                show_Info_Alerter("提示", "以下任务已经重启\n", restart_Task_Name);
+            } else {
+                show_Info_Alerter("提示", "以下任务已经重启\n" + restart_Task_Name, "以下任务未发生错误，无法重启\n" + restart_Failed);
+            }
         }
-
         restart_Task_Name = null;
         restart_Failed = null;
         uploading_Button_Pane_Init();//更新面板取消选中
@@ -825,7 +835,7 @@ public class User_Controller implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("选择需要上传的文件");
         File file = fileChooser.showOpenDialog(Starter.get_Current_Stage());
-        if (file.exists()) {
+        if (file != null) {
             upload_List.add_NewFile(file);
             if (!upload_Worker_is_started) {
                 Runnable upload_Thread_Task = () -> {
@@ -1056,26 +1066,30 @@ public class User_Controller implements Initializable {
                 download_List.add_NewFile(all_files_List.get_File_Name(i));
             }
         }
-        //线程单独监控
-        show_Info_Alerter("开始下载", "下载任务已经开始，正在下载以下文件", download_File_Name);
-        if (!download_Worker_is_started) {
-            //启动下载线程
-            Runnable download_Thread_Task = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        download_Worker();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        download_Worker_is_started = false;
+        if (download_File_Name.equals("")) {
+            show_Error_Alerter("提示", "没有选择文件!", "请选择文件后进行下载!");
+        } else {
+            //线程单独监控
+            show_Info_Alerter("开始下载", "下载任务已经开始，正在下载以下文件", download_File_Name);
+            if (!download_Worker_is_started) {
+                //启动下载线程
+                Runnable download_Thread_Task = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            download_Worker();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } finally {
+                            download_Worker_is_started = false;
+                        }
                     }
-                }
-            };
-            Thread download_worker_Thread = new Thread(download_Thread_Task);
-            download_worker_Thread.setDaemon(true);
-            download_worker_Thread.start();
-            download_Worker_is_started = true;
+                };
+                Thread download_worker_Thread = new Thread(download_Thread_Task);
+                download_worker_Thread.setDaemon(true);
+                download_worker_Thread.start();
+                download_Worker_is_started = true;
+            }
         }
         download_File_Name = null;
         all_files_List.uncheck_All();//取消选中
@@ -1281,128 +1295,134 @@ public class User_Controller implements Initializable {
         logger.debug("delete Clicked!");
         List<String> delete_filename_List = new ArrayList<>();
         String delete_File_Name = "";
+        Boolean need_To_Delete = false;
         for (int i = 0; i < t; i++) {
             if (all_files_List.child_Pane.get(i).is_Checked) {
                 delete_File_Name = all_files_List.get_File_Name(i);
-                logger.debug("Download file: " + all_files_List.get_File_Name(i));
+                logger.debug("delete file: " + all_files_List.get_File_Name(i));
                 delete_filename_List.add(delete_File_Name);//将需要删除的文件放进队列中
+                need_To_Delete = true;
             }
         }
 
-        //创建连接
-        Socket socket = null;
-        OutputStream os = null;
-        PrintWriter pw = null;
-        InputStream is = null;
-        BufferedReader br = null;
+        if (need_To_Delete) {
+            //创建连接
+            Socket socket = null;
+            OutputStream os = null;
+            PrintWriter pw = null;
+            InputStream is = null;
+            BufferedReader br = null;
 
-        try {
-            socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
-            logger.debug("尝试连接服务器");
-            os = socket.getOutputStream();//字节流(二进制)
-            pw = new PrintWriter(os);//字符编码
+            try {
+                socket = new Socket(Main.down_Load_Server_IP, Main.down_Load_Server_Port);
+                logger.debug("尝试连接服务器");
+                os = socket.getOutputStream();//字节流(二进制)
+                pw = new PrintWriter(os);//字符编码
 
-            JSONObject message_9_Au_Json = new JSONObject();
-            message_9_Au_Json.put("id", 9);
-            message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
-            Date TS5 = new Date();
-            JSONObject au_Origin = new JSONObject();
-            au_Origin.put("IDc", Main.User_ID);
-            au_Origin.put("ADc", Main.ADc);
-            au_Origin.put("TS5", TS5);
-            String au_Origin_String = au_Origin.toJSONString();
-            String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
-            DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", au_Origin_String, au_Encrypt_String);
-            message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
+                JSONObject message_9_Au_Json = new JSONObject();
+                message_9_Au_Json.put("id", 9);
+                message_9_Au_Json.put("Ticket_v", Main.ticket_DOWN1);
+                Date TS5 = new Date();
+                JSONObject au_Origin = new JSONObject();
+                au_Origin.put("IDc", Main.User_ID);
+                au_Origin.put("ADc", Main.ADc);
+                au_Origin.put("TS5", TS5);
+                String au_Origin_String = au_Origin.toJSONString();
+                String au_Encrypt_String = DES_des.Encrypt_Text(au_Origin_String, Main.K_C_DOWN1);
+                DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", au_Origin_String, au_Encrypt_String);
+                message_9_Au_Json.put("Authenticator_c", au_Encrypt_String);
 
-            pw.write(message_9_Au_Json + "\n");
-            pw.flush();
+                pw.write(message_9_Au_Json + "\n");
+                pw.flush();
 
-            //接收消息
-            is = socket.getInputStream();
-            br = new BufferedReader(new InputStreamReader(is));
-            String server_Message_10 = br.readLine();
-            //心跳包
-            if (server_Message_10.toString() == null) {//数据异常判断客户端是否关闭
-                socket.sendUrgentData(0xFF);//抛出异常
-            }
-            JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
-            if (msg_10_Json.getInteger("id") == 10) {
-                Calendar calendar = new GregorianCalendar();
-                calendar.setTime(TS5);
-                calendar.add(calendar.HOUR, 1);
-                Date TS5_TEST = calendar.getTime();
-                String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_DOWN1);
-                DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", TS5_TEST.toString(), TS5_TEST_String);
-                if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
-                    logger.debug("下载端身份验证成功！");
-                    JSONObject msg_14_data_Json = new JSONObject();
-                    msg_14_data_Json.put("num", delete_filename_List.size());
-                    msg_14_data_Json.put("filename", delete_filename_List);
-                    //进行des加密
-                    String msg_14_data_encrypted = DES_des.Encrypt_Text(msg_14_data_Json.toJSONString(), Main.K_C_DOWN1);
-                    DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", msg_14_data_Json.toJSONString(), msg_14_data_encrypted);
-                    JSONObject msg_14_Json = new JSONObject();
-                    msg_14_Json.put("id", 14);
-                    msg_14_Json.put("IDc", Main.User_ID);
-                    msg_14_Json.put("data", msg_14_data_encrypted);
+                //接收消息
+                is = socket.getInputStream();
+                br = new BufferedReader(new InputStreamReader(is));
+                String server_Message_10 = br.readLine();
+                //心跳包
+                if (server_Message_10.toString() == null) {//数据异常判断客户端是否关闭
+                    socket.sendUrgentData(0xFF);//抛出异常
+                }
+                JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
+                if (msg_10_Json.getInteger("id") == 10) {
+                    Calendar calendar = new GregorianCalendar();
+                    calendar.setTime(TS5);
+                    calendar.add(calendar.HOUR, 1);
+                    Date TS5_TEST = calendar.getTime();
+                    String TS5_TEST_String = DES_des.Encrypt_Text(TS5_TEST.toString(), Main.K_C_DOWN1);
+                    DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", TS5_TEST.toString(), TS5_TEST_String);
+                    if (msg_10_Json.getString("ACK").equals(TS5_TEST_String)) {
+                        logger.debug("下载端身份验证成功！");
+                        JSONObject msg_14_data_Json = new JSONObject();
+                        msg_14_data_Json.put("num", delete_filename_List.size());
+                        msg_14_data_Json.put("filename", delete_filename_List);
+                        //进行des加密
+                        String msg_14_data_encrypted = DES_des.Encrypt_Text(msg_14_data_Json.toJSONString(), Main.K_C_DOWN1);
+                        DES_RSA_Controller.EC_Show_Appendent(true, true, Main.K_C_DOWN1, "", "", msg_14_data_Json.toJSONString(), msg_14_data_encrypted);
+                        JSONObject msg_14_Json = new JSONObject();
+                        msg_14_Json.put("id", 14);
+                        msg_14_Json.put("IDc", Main.User_ID);
+                        msg_14_Json.put("data", msg_14_data_encrypted);
 
-                    pw.write(msg_14_Json + "\n");
-                    pw.flush();
+                        pw.write(msg_14_Json + "\n");
+                        pw.flush();
 
-                    //接收消息
-                    is = socket.getInputStream();
-                    br = new BufferedReader(new InputStreamReader(is));
-                    String server_Message_0 = br.readLine();
-                    //心跳包
-                    if (server_Message_0.toString() == null) {//数据异常判断客户端是否关闭
-                        socket.sendUrgentData(0xFF);//抛出异常
-                    }
-                    JSONObject msg_0_Status = JSON.parseObject(server_Message_0);
-                    if (msg_0_Status.getInteger("id") == 0) {
-                        if (msg_0_Status.getInteger("status") == 13) {
-                            show_Error_Alerter("删除状态", "文件删除失败", "可能有部分文件删除失败，请重试！");
-                        } else if (msg_0_Status.getInteger("status") == 12) {
-                            show_Info_Alerter("删除状态", "文件删除成功", "文件已经成功删除！");
-                        } else {
+                        //接收消息
+                        is = socket.getInputStream();
+                        br = new BufferedReader(new InputStreamReader(is));
+                        String server_Message_0 = br.readLine();
+                        //心跳包
+                        if (server_Message_0.toString() == null) {//数据异常判断客户端是否关闭
+                            socket.sendUrgentData(0xFF);//抛出异常
+                        }
+                        JSONObject msg_0_Status = JSON.parseObject(server_Message_0);
+                        if (msg_0_Status.getInteger("id") == 0) {
+                            if (msg_0_Status.getInteger("status") == 13) {
+                                show_Error_Alerter("删除状态", "文件删除失败", "可能有部分文件删除失败，请重试！");
+                            } else if (msg_0_Status.getInteger("status") == 12) {
+                                show_Info_Alerter("删除状态", "文件删除成功", "文件已经成功删除！");
+                            } else {
+                                show_Error_Alerter("删除状态", "未知错误", "出现未知错误，请重试！");
+                            }
+                        } else {//收到的不是状态码，失败
                             show_Error_Alerter("删除状态", "未知错误", "出现未知错误，请重试！");
                         }
-                    } else {//收到的不是状态码，失败
-                        show_Error_Alerter("删除状态", "未知错误", "出现未知错误，请重试！");
                     }
+                } else {
+                    show_Error_Alerter("删除状态", "删除失败", "身份验证失败，请重新登录！");
+                    Starter.setRoot("Login", "登录 | 瓜娃子云盘", 420, 512, 420, 512, 420, 512);
                 }
-            } else {
-                show_Error_Alerter("删除状态", "删除失败", "身份验证失败，请重新登录！");
-                Starter.setRoot("Login", "登录 | 瓜娃子云盘", 420, 512, 420, 512, 420, 512);
-            }
-        } catch (Exception e) {
-            logger.error("服务端已经断开连接\n");
-            e.printStackTrace();
-            show_Error_Alerter("删除状态", "未知错误", "服务器异常断开连接！请重试");
-        } finally {
-            try {
-                if (!(br == null)) {
-                    br.close();
-                }
-                if (!(is == null)) {
-                    is.close();
-                }
-                if (!(os == null)) {
-                    os.close();
-                }
-                if (!(pw == null)) {
-                    pw.close();
-                }
-                if (!(socket == null)) {
-                    socket.close();
-                }
-            } catch (IOException e) {
+            } catch (Exception e) {
+                logger.error("服务端已经断开连接\n");
                 e.printStackTrace();
+                show_Error_Alerter("删除状态", "未知错误", "服务器异常断开连接！请重试");
             } finally {
-                file_List_Update_And_Show();
-                logger.debug("刷新文件列表");
+                try {
+                    if (!(br == null)) {
+                        br.close();
+                    }
+                    if (!(is == null)) {
+                        is.close();
+                    }
+                    if (!(os == null)) {
+                        os.close();
+                    }
+                    if (!(pw == null)) {
+                        pw.close();
+                    }
+                    if (!(socket == null)) {
+                        socket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    file_List_Update_And_Show();
+                    logger.debug("刷新文件列表");
 
+                }
             }
+        } else {
+            show_Error_Alerter("提示", "没有选择需要删除的文件", "请选择文件后点击删除按钮");
         }
     }
 

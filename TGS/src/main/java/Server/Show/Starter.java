@@ -119,8 +119,8 @@ public class Starter extends Application {
 
 
     public void Server_Main_App() throws SQLException, ClassNotFoundException {
-        SocketServer server = new SocketServer(8889);
-        TGS_Server.ConnectToDB();
+        SocketServer server = new SocketServer(18001);
+        //TGS_Server.ConnectToDB();
         server.ServerListener();
     }
 
