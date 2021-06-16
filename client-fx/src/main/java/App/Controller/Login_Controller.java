@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Date;
@@ -242,7 +243,9 @@ public class Login_Controller implements Initializable {
                                 ClientApp.K_C_TGS = msg_6_Json.getString("Kc_tgs");
                                 logger.debug("获取到Ticket-tgs：" + ClientApp.ticket_TGS);
 
-                                ClientApp.ADc = socket.getInetAddress().getHostAddress();
+                                InetAddress addr_self = InetAddress.getLocalHost();
+                                ClientApp.ADc = addr_self.getHostAddress();
+                                //ClientApp.ADc = socket.getInetAddress().getHostAddress();
                                 int status = get_TicketV(user_ID, ClientApp.up_Load_Server_ID);
                                 if (status == 1) {
                                     status = get_TicketV(user_ID, ClientApp.down_Load_Server_ID);
