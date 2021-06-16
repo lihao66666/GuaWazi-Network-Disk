@@ -265,7 +265,7 @@ public class Login_Controller implements Initializable {
 
                                 String osName = System.getProperty("os.name");
                                 if (osName.toLowerCase().indexOf("windows") > -1) {//windows
-                                    ClientApp.ADc=InetAddress.getLocalHost().getHostName();
+                                    ClientApp.ADc=InetAddress.getLocalHost().getHostAddress();
                                 }
                                 else{//linux
                                     String ip = "";
