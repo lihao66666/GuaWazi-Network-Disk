@@ -429,6 +429,7 @@ public class Login_Controller implements Initializable {
         PrintWriter pw = null;
         InputStream is = null;
         BufferedReader br = null;
+        int return_Num = 100;
         try {
             // 和服务器创建连接
             socket = new Socket(ClientApp.AS_IP, ClientApp.AS_Port);
@@ -443,7 +444,8 @@ public class Login_Controller implements Initializable {
             try {
                 message_CA = Message_1_CA_Exchange(RSA_Type, RSA_ID);
             } catch (IOException e) {
-                return 2;
+                return_Num = 2;
+                throw e;
             }
             logger.debug("发送证书\t" + message_CA);
             //发送消息
@@ -505,28 +507,28 @@ public class Login_Controller implements Initializable {
                     JSONObject msg_0 = JSON.parseObject(server_Message_0);//转换为Json对象
                     if (msg_0.getInteger("id") == 0) {//报文是回复的证书
                         if (msg_0.getInteger("status") == 0) {
-                            return 1;
+                            return_Num = 1;
                         } else if (msg_0.getInteger("status") == 1) {
-                            return 7;
+                            return_Num = 7;
                         } else if (msg_0.getInteger("status") == 17) {
-                            return 6;
+                            return_Num = 6;
                         } else {
-                            return 0;
+                            return_Num = 0;
                         }
                     } else {
-                        return 5;
+                        return_Num = 5;
                     }
                 } else {
-                    return 3;
+                    return_Num = 3;
                 }
             } else {
-                return 4;
+                return_Num = 4;
             }
 
         } catch (Exception e) {
             logger.error("服务端已经断开连接\n");
             e.printStackTrace();
-            return 0;
+            return_Num = 0;
         } finally {
             try {
                 if (!(br == null)) {
@@ -546,6 +548,8 @@ public class Login_Controller implements Initializable {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                return return_Num;
             }
         }
     }
