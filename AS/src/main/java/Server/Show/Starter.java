@@ -81,6 +81,7 @@ public class Starter extends Application {
                     EC_Stage.setY(0);
                     EC_Stage.show();
                     Starter.setStageIcon(EC_Stage);
+                    current_Stage.close();
                 }
             });
         } catch (IOException e) {
