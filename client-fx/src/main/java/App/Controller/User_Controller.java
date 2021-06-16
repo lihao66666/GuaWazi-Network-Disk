@@ -283,7 +283,7 @@ public class User_Controller implements Initializable {
             br = new BufferedReader(new InputStreamReader(is));
             String server_Message_10 = br.readLine();
             //心跳包
-            if (server_Message_10.toString() == null) {//数据异常判断客户端是否关闭
+            if (server_Message_10 == null) {//数据异常判断客户端是否关闭
                 socket.sendUrgentData(0xFF);//抛出异常
             }
             JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
@@ -311,7 +311,7 @@ public class User_Controller implements Initializable {
                     br = new BufferedReader(new InputStreamReader(is));
                     String msg_13_Reply_File_List = br.readLine();
                     //心跳包
-                    if (msg_13_Reply_File_List.toString() == null) {//数据异常判断客户端是否关闭
+                    if (msg_13_Reply_File_List == null) {//数据异常判断客户端是否关闭
                         socket.sendUrgentData(0xFF);//抛出异常
                     }
                     JSONObject msg_13_Reply_Json = JSON.parseObject(msg_13_Reply_File_List);
@@ -895,7 +895,7 @@ public class User_Controller implements Initializable {
                     br = new BufferedReader(new InputStreamReader(is));
                     String server_Message_10 = br.readLine();
                     //心跳包
-                    if (server_Message_10.toString() == null) {//数据异常判断客户端是否关闭
+                    if (server_Message_10 == null) {//数据异常判断客户端是否关闭
                         socket.sendUrgentData(0xFF);//抛出异常
                     }
                     //响应请求
@@ -1154,7 +1154,7 @@ public class User_Controller implements Initializable {
                     br = new BufferedReader(new InputStreamReader(is));
                     String server_Message_10 = br.readLine();
                     //心跳包
-                    if (server_Message_10.toString() == null) {//数据异常判断客户端是否关闭
+                    if (server_Message_10 == null) {//数据异常判断客户端是否关闭
                         socket.sendUrgentData(0xFF);//抛出异常
                     }
                     //响应请求
@@ -1190,7 +1190,7 @@ public class User_Controller implements Initializable {
                                 br = new BufferedReader(new InputStreamReader(is));
                                 String server_Message_12 = br.readLine();
                                 //心跳包
-                                if (server_Message_12.toString() == null) {//数据异常判断客户端是否关闭
+                                if (server_Message_12 == null) {//数据异常判断客户端是否关闭
                                     socket.sendUrgentData(0xFF);//抛出异常
                                 }
                                 JSONObject msg_12_server_Json = JSON.parseObject(server_Message_12);
@@ -1374,7 +1374,7 @@ public class User_Controller implements Initializable {
                 br = new BufferedReader(new InputStreamReader(is));
                 String server_Message_10 = br.readLine();
                 //心跳包
-                if (server_Message_10.toString() == null) {//数据异常判断客户端是否关闭
+                if (server_Message_10 == null) {//数据异常判断客户端是否关闭
                     socket.sendUrgentData(0xFF);//抛出异常
                 }
                 JSONObject msg_10_Json = JSON.parseObject(server_Message_10);
@@ -1406,7 +1406,7 @@ public class User_Controller implements Initializable {
                         br = new BufferedReader(new InputStreamReader(is));
                         String server_Message_0 = br.readLine();
                         //心跳包
-                        if (server_Message_0.toString() == null) {//数据异常判断客户端是否关闭
+                        if (server_Message_0 == null) {//数据异常判断客户端是否关闭
                             socket.sendUrgentData(0xFF);//抛出异常
                         }
                         JSONObject msg_0_Status = JSON.parseObject(server_Message_0);

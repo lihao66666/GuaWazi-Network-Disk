@@ -180,6 +180,10 @@ public class Login_Controller implements Initializable {
             is = socket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
             String server_Message = br.readLine();
+            //心跳包
+            if (server_Message == null) {//数据异常判断客户端是否关闭
+                socket.sendUrgentData(0xFF);//抛出异常
+            }
             logger.debug("接收到的服务器消息" + server_Message);
             JSONObject msg = JSON.parseObject(server_Message);//转换为Json对象
             if (msg.getInteger("id") == 2) {//报文是回复的证书
@@ -218,6 +222,10 @@ public class Login_Controller implements Initializable {
                     is = socket.getInputStream();
                     br = new BufferedReader(new InputStreamReader(is));
                     String server_Message_0 = br.readLine();
+                    //心跳包
+                    if (server_Message_0 == null) {//数据异常判断客户端是否关闭
+                        socket.sendUrgentData(0xFF);//抛出异常
+                    }
                     logger.debug("接收到的服务器消息" + server_Message_0);
                     JSONObject msg_0 = JSON.parseObject(server_Message_0);//转换为Json对象
                     if (msg_0.getInteger("id") == 0) {//报文是回复的证书
@@ -232,6 +240,10 @@ public class Login_Controller implements Initializable {
                             br = new BufferedReader(new InputStreamReader(is));
 
                             String server_Message_6 = br.readLine();
+                            //心跳包
+                            if (server_Message_6 == null) {//数据异常判断客户端是否关闭
+                                socket.sendUrgentData(0xFF);//抛出异常
+                            }
                             logger.debug("接收到的服务器消息" + server_Message_6);
                             JSONObject msg_6 = JSON.parseObject(server_Message_6);
                             if (msg_6.getInteger("id") == 6) {
@@ -337,6 +349,10 @@ public class Login_Controller implements Initializable {
             is = socket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
             String server_Message_8 = br.readLine();
+            //心跳包
+            if (server_Message_8 == null) {//数据异常判断客户端是否关闭
+                socket.sendUrgentData(0xFF);//抛出异常
+            }
             logger.debug("接收到的服务器消息" + server_Message_8);
 
             JSONObject msg_8 = JSON.parseObject(server_Message_8);//转换为Json对象
@@ -438,6 +454,10 @@ public class Login_Controller implements Initializable {
             is = socket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
             String server_Message = br.readLine();
+            //心跳包
+            if (server_Message == null) {//数据异常判断客户端是否关闭
+                socket.sendUrgentData(0xFF);//抛出异常
+            }
             logger.debug("接收到的服务器消息" + server_Message);
             JSONObject msg = JSON.parseObject(server_Message);//转换为Json对象
             if (msg.getInteger("id") == 2) {//报文是回复的证书
@@ -477,6 +497,10 @@ public class Login_Controller implements Initializable {
                     is = socket.getInputStream();
                     br = new BufferedReader(new InputStreamReader(is));
                     String server_Message_0 = br.readLine();
+                    //心跳包
+                    if (server_Message_0 == null) {//数据异常判断客户端是否关闭
+                        socket.sendUrgentData(0xFF);//抛出异常
+                    }
                     logger.debug("接收到的服务器消息3" + server_Message_0);
                     JSONObject msg_0 = JSON.parseObject(server_Message_0);//转换为Json对象
                     if (msg_0.getInteger("id") == 0) {//报文是回复的证书
