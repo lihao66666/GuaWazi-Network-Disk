@@ -9,7 +9,7 @@ import java.net.Socket;
 
 public class ServerThread extends Thread {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ServerThread.class);
-    private static Socket socket = null;
+    private Socket socket = null;
     private DownloadServer server;//应用服务
 
     public ServerThread(Socket socket) {
