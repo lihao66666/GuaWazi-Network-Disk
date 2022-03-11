@@ -1,3 +1,5 @@
+# @COPYRIGHT BY LH、LSL、LZT （中国地质大学（武汉））
+
 # 项目简介
 基于Kerberos5魔改(在原有的基础上添加RSA协议)的简易网盘(含客户端以及服务端)
 # 各个端的ip和port
